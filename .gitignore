@@ -1,4 +1,4 @@
-.env
+config.py
 .venv
 .vscode
 config/
