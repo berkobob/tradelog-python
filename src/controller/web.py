@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect
+from controller.load import process_raw_trades
 
 web = Blueprint('web', __name__)
 
@@ -17,6 +18,6 @@ def load():
             return render_template('load.html')
 
         flash(f'{f.filename} loaded successfully!', 'SUCCESS')
-        return render_template('rawtrades.html')
+        return render_template('rawtrades.html', trades=process_raw_trades(f.filename))
 
     return render_template('load.html')

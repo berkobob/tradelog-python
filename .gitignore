@@ -1,6 +1,7 @@
 config.py
 .venv
 .vscode
+.ds_store
 *.csv
 config/
 __pycache__/

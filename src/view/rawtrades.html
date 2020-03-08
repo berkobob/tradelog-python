@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<p>
- This is where raw trades will go
-</p>
+<div class="w3-container">
+    {% for trade in trades %}
+        <p>{{trade.values()}}</p>
+    {% endfor %}
+</div>
 {% endblock %}

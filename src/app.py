@@ -1,5 +1,5 @@
 from model.mongodb import DB
-from flask import Flask
+from flask import Flask, current_app
 from controller.web import web
 
 app = Flask(__name__, template_folder='view')
@@ -10,4 +10,4 @@ try:
 except:
     pass
 
-db = DB(app.config['DB_URL'], app.config['ENV'])
+DB.connect(app.config['DB_URL'], app.config['ENV'])
