@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect
-from controller.load import process_raw_trades
+from src.controller.load import process_raw_trades
 
 web = Blueprint('web', __name__)
 

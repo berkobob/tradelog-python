@@ -1,5 +1,5 @@
 from flask import flash, render_template
-from model.mongodb import DB
+from src.model.mongodb import DB
 
 def process_raw_trades(filename):
     """ load the raw trade file from IB and process each trade """
