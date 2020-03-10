@@ -2,23 +2,33 @@ from pymongo import MongoClient
 
 class DB:
     """ The database API """
+    db = None
 
     @classmethod
     def connect(cls, URL, env):
-        mongo = MongoClient(URL)
-        cls.db = mongo[env]
-
-    @classmethod
-    def test(cls):
-        return cls.db
+        # mongo = MongoClient(URL)
+        try:
+            cls.db = MongoClient(URL)[env]
+        except Exception as e:
+            return {'success': False, 'message': str(e), 'severity': 'ERROR'}
+        return {'succcess': True}
         
     @classmethod
     def add_raw_trade(cls, trade):
-        return cls.db.raw_trades.insert_one(trade)
+        try:
+            cls.db.raw_trades.insert_one(trade)
+        except Exception as e:
+            return {'success': False, 'message': str(e), 'severity': 'ERROR'}
+        return {'succcess': True}
 
-    # def dbtest(self):
-    #     for trade in self.test.find():
-    #         print(trade)
+    @classmethod
+    def new_port(cls, port):
+        try: 
+            cls.db.portfolios.insert_one(port)
+        except Exception as e:
+            return {'success': False, 'message': str(e), 'severity': 'ERROR'}
+        return {'success': True}
 
-    # def getOne(self):
-    #     return self.test.find_one()
+    @classmethod
+    def get_portfolios(cls):
+        return [port for port in cls.db.portfolios.find()]

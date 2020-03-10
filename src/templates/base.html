@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Trade Log</title>
 </head>
 <body>
@@ -12,13 +13,15 @@
         <div class="w3-bar w3-black">
             <a href="/" class="w3-bar-item w3-button">Trade Log</a>
             <a href="/load" class="w3-bar-item w3-button">Load</a>
-            <a href="#" class="w3-bar-item w3-button">Link 2</a>
-            <a href="#" class="w3-bar-item w3-button">Link 3</a>
+            {% for port in ports %}
+            <a href="#" class="w3-bar-item w3-button">{{port}}</a>
+            {% endfor %}
+            <a href="/new" class="w3-bar-item w3-button w3-right"><i class="fa fa-plus"></i></a>
         </div>
+        
+        {% block content %}
+        
     </div>
-    <p>&nbsp</p>
-
-    {% block content %}
     {% endblock %}
     
     <div class="w3-container ">

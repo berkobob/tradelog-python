@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="w3-card-4 w3-container">
+    <div class="w3-container"><h2>Create a new portfolio:</h2></div>
+    <form class="w3-container" action = "/new" method = "POST" enctype = "multipart/form-data">
+        <div class="w3-row-padding">
+            <div class="w3-col s3">
+                <input type="text" class="w3-input w3-border" placeholder="Name" name="name">
+            </div>
+            <div class="w3-col s8">
+                <input type="text" class="w3-input w3-border" placeholder="Description" name="description">
+            </div>
+            <div class="w3-col s1">
+                <input type="submit" class="w3-button w3-black" placeholder="Submit">
+            </div>
+        </div>
+    </form>
+    <p>&nbsp;</p>
+</div>
+{% endblock %}

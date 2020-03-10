@@ -1,9 +1,9 @@
 from os import environ, urandom
-from flask import Flask, current_app
-from src.model.mongodb import DB
-from src.controller.web import web
+from flask import Flask
+from src.view.web import web
+from src.controller.tradelog import init
 
-app = Flask(__name__, template_folder='view')
+app = Flask(__name__)
 app.register_blueprint(web)
 
 try:
@@ -17,7 +17,4 @@ if 'DB_URL' not in app.config.keys():
 if app.config['SECRET_KEY'] is None:
     app.config['SECRET_KEY'] = urandom(24)
 
-print('DB_URL:', app.config['DB_URL'])
-print('SECRET_KEY', app.config['SECRET_KEY'])
-
-DB.connect(app.config['DB_URL'], app.config['ENV'])
+init(app.config['DB_URL'], app.config['ENV'])
