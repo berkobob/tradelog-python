@@ -1,7 +1,7 @@
 from os import environ, urandom
 from flask import Flask
 from src.view.web import web
-from src.controller.tradelog import init
+from src.common.database import DB
 
 app = Flask(__name__)
 app.register_blueprint(web)
@@ -17,4 +17,10 @@ if 'DB_URL' not in app.config.keys():
 if app.config['SECRET_KEY'] is None:
     app.config['SECRET_KEY'] = urandom(24)
 
-init(app.config['DB_URL'], app.config['ENV'])
+result = DB.connect(app.config['DB_URL'], app.config['ENV'])
+
+if not result.success:
+    print ("*** FATAL ERROR. Cannot connect to database ***")
+    print(result.message)
+    exit()
+else: print(" * Succesfully connected to the database *")
