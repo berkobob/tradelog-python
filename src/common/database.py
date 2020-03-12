@@ -12,7 +12,8 @@ class DB:
         variables and the database from the environment. Returns a Result
         """
         try:
-            cls.db = MongoClient(URL)[env]
+            cls.db = MongoClient(URL, connectTimeoutMS=30000, socketTimeoutMS=None, 
+                                socketKeepAlive=True, connect=False, maxPoolsize=1)[env]
         except Exception as e:
             return Result(success=False, message=str(e), severity='ERROR')
         return Result(success=True)
