@@ -32,7 +32,9 @@ def load():
         f.save(f.filename)
     except Exception as e:
         flash(str(e), 'ERROR')
-        return render_template('load.html', ports=ports()
+        return render_template('load.html', ports=ports())
+    return render_template('load.html', ports=ports())
+
 
 #     trades = []
 #     try:
@@ -48,4 +50,3 @@ def load():
     
 #     flash(f'{f.filename} loaded successfully!', 'SUCCESS')
 #     return render_template('rawtrades.html', trades=trades)
-    
