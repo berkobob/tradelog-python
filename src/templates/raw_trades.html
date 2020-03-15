@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="w3-container w3-responsive">
+    {% if trades[0] %}
+    <table class="w3-table">
+        <tr>
+            {% for header in trades[0].trade.keys() %}
+            <th>{{ header }} </th>
+            {% endfor %}
+            <th>Portfolio</th>
+            <th>Commit</th>
+        </tr>
+        {% for trade in trades %}
+        <tr>
+            {% for key in trade.trade.keys() %}
+                <td>{{trade.trade[key]}}</td>
+            {% endfor %}
+            <form action="/raw" method="POST" class="w3-container">
+                <td>
+                    <select class="w3-select" name="port">
+                        <option value="" disabled selected>Select a portfolio</option>
+                        {% for port in ports %}
+                            <option value={{port}}>{{ port }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <input type="hidden" value="{{trade._id}}", name='raw_id'>
+                <td>
+                    <input type="submit" class="w3-button w3-block w3-padding-small w3-cell-top", value="Commit"/>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <div class="w3-container w3-large"><p>There are no raw trades to commit.</p></div>
+    {% endif %}
+</div>
+{% endblock %}
