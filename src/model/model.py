@@ -13,7 +13,6 @@ class Model(metaclass=ABCMeta):
     def read(cls, query):
         result = DB.read(cls.collection, query)
         if result.success: result.message = [cls(item) for item in result.message]
-        # if result.success: result.message = [cls(result.message)]
         return result
 
     def update(self, values):

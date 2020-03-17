@@ -23,6 +23,7 @@ class Trade(Model):
         self.ooc = trade['Open/CloseIndicator']
         self.multiplier = int(trade['Multiplier'])
         self.notes = trade['Notes/Codes\n']
+        if self.notes and self.notes[-1] == '\n': self.notes = self.notes[0:-1]
         self.raw_id = trade['raw_id']
         self.port = trade['port']
         if '_id' in trade.keys(): self._id = trade['_id']

@@ -25,7 +25,9 @@ class Stock(Model):
 
         # set _id and add first trade
         stock._id = ObjectId(result.message)
-        return stock.add(trade)
+        result = stock.add(trade)
+        if not result.success: return result
+        return Result(success=True, message={'stock': stock.stock, '_id': stock._id})
 
     def add(self, trade):
         self.trades.append(trade._id)
