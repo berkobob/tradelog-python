@@ -2,10 +2,13 @@ from pymongo import MongoClient, cursor
 from src.common.result import Result
 
 class DB:
-    """ The mongo database API """
+    """ 
+    The mongo database API 
+    Should only deal with database errors and not application errors
+    """
     db = []
     # return Result(success=False, message='Panic!', severity='ERROR')
-    
+
     @classmethod
     def connect(cls, URL: str, env: str) -> Result:
         """
@@ -38,12 +41,14 @@ class DB:
         except Exception as e:
             return Result(success=False, message=str(e), severity='ERROR')
         return Result(success=True, message=message)
-        # if message: return Result(success=True, message=message)
-        # return Result(success=False, message=f'No records found matching {query}', severity='WARNING')
 
     @classmethod
-    def update(cls):
-        pass
+    def update(cls, collection, query, values):
+        try:
+            message = cls.db[collection].update(query, values)
+        except Exception as e:
+            return Result(success=False, message=str(e), severity='ERROR')
+        return Result(success=True, message=message)
 
     @classmethod
     def delete(cls, collection, query):
@@ -51,13 +56,4 @@ class DB:
             message = cls.db[collection].delete_one(query)
         except Exception as e:
             return Result(success=False, message=str(e), severity='ERROR')
-        if message.deleted_count != 1:
-            return Result(success=False, message='Failed to delete', severity='ERROR')
         return Result(success=True, message=message)
-
-    # @classmethod
-    # def all(cls, collection: str) -> cursor:
-    #     """
-    #     Return a cursor pointing to all the records of the passed collection
-    #     """
-    #     return cls.db[collection].find()

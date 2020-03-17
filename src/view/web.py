@@ -64,14 +64,12 @@ def commit():
 
     result = commit_raw_trade(request.form.get('raw_id'), request.form.get('port'))
     
-    if result.success: 
-        flash('Trade committed', 'SUCCESS')
-        print(result.message)
+    if result.success: flash('Trade committed', 'SUCCESS')
     else: flash(result.message, result.severity)
 
     # Because this page uses the .csv header row as a table header, when there
     # are no more trades to commit we can't show an empty table because we can't
-    # show any headers so send home with flash message
+    # show any headers so show message instead with flash message
 
     trades = get_raw_trades().message
 

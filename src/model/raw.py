@@ -10,5 +10,5 @@ class Raw(Model):
             self.trade = trade['trade']
         else: 
             self.trade = trade
-        self.port = trade['port'] if 'port' in trade.keys() else False
+        self.port = trade['port'] if 'port' in trade.keys() else None
         if '_id' in trade.keys(): self._id = trade['_id']
