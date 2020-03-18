@@ -5,7 +5,7 @@
     <table class="w3-table">
         <tr>
             {% for header in trades[0].trade.keys() %}
-            <th>{{ header }} </th>
+            <th><a href="/raw/{{header}}">{{ header }}</a></th>
             {% endfor %}
             <th>Portfolio</th>
             <th>Commit</th>

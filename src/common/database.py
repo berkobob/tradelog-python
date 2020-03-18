@@ -35,7 +35,15 @@ class DB:
         return Result(success=True, message=str(message))
 
     @classmethod
-    def read(cls, collection, query):
+    def read_one(cls, collection: str, query: dict):
+        try:
+            message = cls.db[collection].find_one(query)
+        except Exception as e:
+            return Result(success=False, message=str(e), severity='ERROR')
+        return Result(success=True, message=message)
+
+    @classmethod
+    def read_many(cls, collection, query):
         try:
             message = cls.db[collection].find(query)
         except Exception as e:

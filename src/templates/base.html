@@ -15,9 +15,9 @@
             <a href="/load" class="w3-bar-item w3-button">Load</a>
             <a href="/raw" class="w3-bar-item w3-button">Raw</a>
             {% for port in ports %}
-            <a href="#" class="w3-bar-item w3-button">{{port}}</a>
+            <a href="/port/{{port}}" class="w3-bar-item w3-button">{{port}}</a>
             {% endfor %}
-            <a href="/new" class="w3-bar-item w3-button w3-right"><i class="fa fa-plus"></i>&nbsp</a>
+            <a href="/new" class="w3-bar-item w3-button w3-right"><i class="fa fa-plus"></i></a>
         </div>
         <p>&nbsp</p>
         {% block content %}

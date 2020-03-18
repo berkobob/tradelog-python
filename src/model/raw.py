@@ -12,3 +12,7 @@ class Raw(Model):
             self.trade = trade
         self.port = trade['port'] if 'port' in trade.keys() else None
         if '_id' in trade.keys(): self._id = trade['_id']
+
+    def commit(self, port):
+        self.port = port
+        return self.update({'port': port})

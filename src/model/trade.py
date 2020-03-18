@@ -1,6 +1,5 @@
 from src.model.model import Model
 from src.common.result import Result
-from bson.objectid import ObjectId
 from datetime import datetime
 
 class Trade(Model):
@@ -30,16 +29,12 @@ class Trade(Model):
 
     @classmethod
     def new(cls, raw):
+        """ Routine to create a new trade. Return the trade """
+        # Move _id and port down in 'trade' to make class creation easy
         raw.trade['raw_id'] = raw._id 
         raw.trade['port'] = raw.port
         trade = cls(raw.trade)
-        result = trade.create()
-        if not result.success: return Result
-        trade.set_id(result.message)
-        return Result(True, message=trade)
-
-    def set_id(self, _id):
-        self._id = ObjectId(_id)
+        return trade.create()
 
     def __str__(self):
         msg = f"{self.bos} {self.quantity} {self.stock} "
