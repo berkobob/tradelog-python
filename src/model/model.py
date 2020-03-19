@@ -8,10 +8,11 @@ class Model(metaclass=ABCMeta):
     _id: str
 
     def create(self) -> Result:
+        """ Save a copy of the class in the DB, add the _id and return the object """
         result = DB.create(self.collection, vars(self))
         if not result.success: return result
         self._id = ObjectId(result.message)
-        return Result(success=True, message=self)
+        return Result(success=True, message=self, severity='SUCCESS')
 
     @classmethod
     def read(cls, query, many=False):
@@ -28,7 +29,6 @@ class Model(metaclass=ABCMeta):
     @classmethod
     def get(cls, _id):
         return cls.read({'_id': ObjectId(_id)})
-        # result = DB.read_one(self.collection, {'_id': self._id})
         
 
     def update(self, values):

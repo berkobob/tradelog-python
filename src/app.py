@@ -23,4 +23,4 @@ if not result.success:
     print ("*** FATAL ERROR. Cannot connect to database ***")
     print(result.message)
     exit()
-else: print(" * Succesfully connected to the database *")
+else: print(f" * Succesfully connected to the {app.config['ENV']} database *")

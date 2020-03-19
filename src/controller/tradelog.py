@@ -16,13 +16,11 @@ class Log:
         """ Returns a list of portfolio names """
         result = Portfolio.read({}, many=True)
         if not result.success: return result
-        ports = result.message
-        # As Log doesn't keep a list of ports we read the db
-        result.message = [port.name for port in ports]
+        result.message = [port.name for port in result.message]
         return result
 
     @staticmethod
-    def create_portfolio(port) -> Result:
+    def create_portfolio(port: str) -> Result:
         """ createa a new portfolio if the name doesn't already exist """
         port['name'] = port['name'].strip()
         if port['name'] == "":
@@ -34,8 +32,7 @@ class Log:
 
     @staticmethod
     def load_trades_from(filename) -> Result:
-        """ Read trades from a CSV file. Store the raw data and pass back with
-            a UUID to ID trade and store as a trade"""
+        """ For each row in the file create a raw trade and return the count """
         count = 0
         try:
             with open(filename) as file:
@@ -47,7 +44,7 @@ class Log:
         except Exception as e:
             return Result(success=False, message=str(e), severity='ERROR')
 
-        return Result(success=True, message=count)
+        return Result(success=True, message=count, severity='SUCCESS')
 
     @staticmethod
     def get_raw_trades():
@@ -80,7 +77,7 @@ class Log:
         if not portfolio: 
             return Result(success=False, message=f"Cannot find portfolio {port} for some reason.", severity="ERROR")
 
-        return portfolio.commit(raw_trade)
+        return portfolio.commit(raw_trade)  # return message here
 
     @staticmethod
     def get_stocks(port: str):
@@ -88,4 +85,4 @@ class Log:
         if not result.success: return result
         portfolio = result.message
 
-        return Result(True, portfolio.get_stocks())
+        return Result(True, portfolio.get_stocks(), severity='SUCCESS')

@@ -16,7 +16,6 @@ class Portfolio(Model):
 
     def commit(self, raw):
         """ Get a raw trade, process it into a trade and then add it to this port """
-
         # Update the raw record with this port name
         result = raw.commit(self.name)
         if not result.success: return result
@@ -29,14 +28,18 @@ class Portfolio(Model):
         # Add the trade to the stock or create new if first one
         result = Stock.read({'port': self.name, 'stock': trade.stock})
         if not result.success: return result
-        if result.message: # already exists
-            result = result.message.add(trade)
-        else: # a new stock for this port
+
+        if not result.message: # This trade represents a new stock to this port
             result = Stock.new(trade)
             if not result.success: return result
-            self.stocks.append(result.message)
-            result = self.update({'stocks': self.stocks})
-        return result
+            stock = result.message
+            self.stocks.append(stock._id)
+            temp = self.update({'stocks': self.stocks})
+            if not temp.success: return temp
+
+        stock = result.message
+        print('By now we should have a stock new or used\n', stock)
+        return stock.add(trade)  # return a message about the committed trade
 
     def get_stocks(self):
         return [str(x) for x in[Stock.get(x).message for x in [stock['_id'] for stock in self.stocks]]]
