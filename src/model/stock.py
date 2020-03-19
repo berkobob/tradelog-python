@@ -44,16 +44,17 @@ class Stock(Model):
         if position.closed:
             self.closed.append(position._id)
             self.open.remove(position._id)
-            message = f"This trade closed the position for {position.cash}"
+            message = f"this trade was closed for {position.cash} in {position.closed - position.open} days"
         else:   
-            if exists: message = f"This trade added to this existing position"
-            else: message = f"This trade opened the position"
+            if exists: message = f"this trade changed the quatity to {position.quantity}"
+            else: message = f"this trade opened the position for {trade.cash}"
 
         if not exists or position.closed:
             result = self.update({'open': self.open, 'closed': self.closed})
             if not result.success: return result
             
-        return Result(success=True, message=message)
+        pre = f"By {trade.bos}ING {trade.quantity} {trade.symbol} "
+        return Result(success=True, message=pre+message)
 
     def __str__(self):
         return f"{self.stock} in {self.port} has {len(self.open)} open trades and {len(self.closed)} closed trades"
