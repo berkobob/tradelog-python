@@ -30,7 +30,6 @@ class Model(metaclass=ABCMeta):
     def get(cls, _id):
         return cls.read({'_id': ObjectId(_id)})
         
-
     def update(self, values):
         result = DB.update(self.collection, 
                             {"_id": ObjectId(self._id)}, {"$set": values})

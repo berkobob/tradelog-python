@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="w3-container w3-responsive">
+    {% if stocks[0] %}
+    <table class="w3-table">
+        <tr>
+            <th>STOCK</th>
+            <th>POSITIONS</th>
+            <th>OPEN</th>
+            <th>CLOSED</th>
+        </tr>
+        {% for stock in stocks %}
+        <tr>
+            <td><a href="/port/{{stock['port']}}/{{stock['stock']}}">{{stock['stock']}}</a></td>
+            <td>{{stock['open']|length + stock['closed']|length}}</td>
+            <td><a href="/port/{{stock['port']}}/{{stock['stock']}}/open">{{stock['open']|length}}</a></td>
+            <td><a href="/port/{{stock['port']}}/{{stock['stock']}}/closed">{{stock['closed']|length}}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <div class="w3-container w3-large"><p>This portfolio contains no stocks</p></div>
+    {% endif %}
+</div>
+{% endblock %}

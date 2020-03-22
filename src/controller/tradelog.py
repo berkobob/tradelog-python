@@ -71,7 +71,7 @@ class Log:
         raw_trade = result.message
 
         # Get the portfolio to which this trade belongs by the port name
-        result = Portfolio.read({'name': port})
+        result = Portfolio.get(port)
         if not result.success: return result
         portfolio = result.message
         if not portfolio: 
@@ -81,8 +81,14 @@ class Log:
 
     @staticmethod
     def get_stocks(port: str):
-        result = Portfolio.read({'name': port})
+        result = Portfolio.get(port)
         if not result.success: return result
         portfolio = result.message
+        return Result(True, portfolio.get_stocks())
 
-        return Result(True, portfolio.get_stocks(), severity='SUCCESS')
+    @staticmethod
+    def get_positions(port: str, stock: str):
+        result = Portfolio.get(port)
+        if not result.success: return result
+        portfolio = result.message
+        return Result(True, portfolio.get_positions(stock))

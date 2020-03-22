@@ -28,11 +28,10 @@ class Stock(Model):
         exists = [Position.get(pos) for pos in self.open 
                     if Position.get(pos).message.symbol == trade.symbol]
 
-        if exists: 
-            # result = exists[0] # Symbol has a position already e.g stock, option etc
+        if exists: # Symbol has a position already e.g stock, option etc
             result = exists[0].message.add(trade)
-        else: 
-            result = Position.new(trade) # There are no positions on this symbol yet
+        else: # There are no positions on this symbol yet
+            result = Position.new(trade) 
             if result.success: self.open.append(result.message._id)
 
         if not result.success: return result
@@ -56,5 +55,11 @@ class Stock(Model):
         pre = f"By {trade.bos}ING {trade.quantity} {trade.symbol} "
         return Result(success=True, message=pre+message)
 
+    def get_open_positions(self):
+        return [Position.get(id).message for id in self.open]
+
+    def get_closed_positions(self):
+        return [Position.get(id).message for id in self.closed]
+
     def __str__(self):
-        return f"{self.stock} in {self.port} has {len(self.open)} open trades and {len(self.closed)} closed trades"
+        return str(vars(self))

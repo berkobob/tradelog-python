@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <p class='w3-container'>
-    1
-    2
-    3
-    4
+    {% for port in ports %}
+    <a href="/port/{{port}}" class="w3-bar-item w3-button">{{port}}</a>
+    {% endfor %}
 </p>
 {% endblock %}

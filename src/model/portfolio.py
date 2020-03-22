@@ -14,6 +14,11 @@ class Portfolio(Model):
         if '_id' in port.keys():
             self._id = port['_id']
 
+    @classmethod
+    def get(cls, port):
+        """ Override get method in Model to use port name instead of _id """
+        return cls.read({'name': port})
+
     def commit(self, raw):
         """ Get a raw trade, process it into a trade and then add it to this port """
         # Update the raw record with this port name
@@ -42,4 +47,18 @@ class Portfolio(Model):
         return stock.add(trade)  # return a message about the committed trade
 
     def get_stocks(self):
-        return [str(x) for x in[Stock.get(x).message for x in [stock['_id'] for stock in self.stocks]]]
+        return [Stock.get(id).message for id in self.stocks]
+
+    def get_stock(self, stock):
+        search = [Stock.get(id) for id in self.stocks if Stock.get(id).message.stock == stock]
+        if search and search[0].success: return search[0].message
+        return None
+
+    def get_positions(self, stock_name):
+        stock = self.get_stock(stock_name)
+        return Result(success=True, 
+                      message=(stock.get_open_positions(), stock.get_closed_positions()))
+        # open = [Position.get(pos) for pos in self.get_stock(stock)]
+        # closed = [Position.get(pos) for pos in positions.closed]
+        # return Result(true, (open, closed))
+        # return Result(true, (open, closed))

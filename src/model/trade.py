@@ -37,10 +37,7 @@ class Trade(Model):
         return trade.create()
 
     def __str__(self):
-        msg = f"{self.bos} {self.quantity} {self.stock} "
-        if self.asset == 'STK':
-            return msg + f"at ${self.price}"
-        return msg + f"{self.expiry.strftime('%b')} {self.strike} {self.poc} for ${self.price}"
+        return str(vars(self))
 
         
 # Private functions
