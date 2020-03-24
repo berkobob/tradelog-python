@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect
+from flask import Blueprint, render_template, request, flash, redirect, redirect
 from flask_login import current_user, login_required
 from src.controller.tradelog import Log
 
@@ -11,7 +11,7 @@ def home():
     if current_user.is_authenticated:
         return render_template('home.html', ports=_ports())
     else:
-        return "<h1> Login dummy</h1>"
+        return redirect('/user')
 
 @web.route('/new', methods=['GET', 'POST'])
 @login_required
@@ -98,6 +98,10 @@ def open(port, stock):
 def closed(port, stock):
     """ List closed positions and trades """
     return f"list closed {stock} positions in {port}"
+
+@web.route('/logout')
+def logout():
+    return redirect('/user/logout')
 
 
 # private functions
