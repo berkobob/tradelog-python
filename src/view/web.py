@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect
+from flask_login import current_user, login_required
 from src.controller.tradelog import Log
 
 web = Blueprint('web', __name__)
@@ -7,9 +8,13 @@ reverse = False
 @web.route('/')
 def home():
     """ Render the home page """
-    return render_template('home.html', ports=_ports())
+    if current_user.is_authenticated:
+        return render_template('home.html', ports=_ports())
+    else:
+        return "<h1> Login dummy</h1>"
 
 @web.route('/new', methods=['GET', 'POST'])
+@login_required
 def new():
     """ Create a new portfolio """
     if request.method == 'POST':
@@ -29,6 +34,7 @@ def new():
 
 
 @web.route('/load', methods=['GET', 'POST'])
+@login_required
 def load():
     """ select a file of raw trades to load and process """
     if request.method == 'GET': return render_template('load.html')
@@ -52,6 +58,7 @@ def load():
 
 
 @web.route('/raw', methods=['GET', 'POST'])
+@login_required
 def commit():
     """ Convert a raw trade into a processed trade """
     global reverse
