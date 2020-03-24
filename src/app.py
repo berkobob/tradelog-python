@@ -24,7 +24,7 @@ except:
     app.config['SECRET_KEY'] = urandom(24)
     app.config['GOOGLE_CLIENT_ID'] = environ.get('GOOGLE_CLIENT_ID')
     app.config['GOOGLE_CLIENT_SECRET'] = environ.get('GOOGLE_CLIENT_SECRET')
-    app.config['GOOGLE_DISCOVERY_URL'] = environ.get('GOOGLE_CLIENT_ID')
+    app.config['GOOGLE_DISCOVERY_URL'] = environ.get('GOOGLE_DISCOVERY_URL')
 
 result = DB.connect(app.config['DB_URL'], app.config['ENV'])
 
