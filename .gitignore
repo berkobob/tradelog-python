@@ -1,4 +1,5 @@
 config.py
+scratch.py
 .venv
 .vscode
 .ds_store
