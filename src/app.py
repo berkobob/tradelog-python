@@ -20,13 +20,11 @@ def load_user(user_id):
 try:
     app.config.from_object('config.'+app.config['ENV'])
 except:
-    pass
-
-if 'DB_URL' not in app.config.keys():
     app.config['DB_URL'] = environ.get('DB_URL')
-
-if app.config['SECRET_KEY'] is None:
     app.config['SECRET_KEY'] = urandom(24)
+    app.config['GOOGLE_CLIENT_ID'] = environ.get('GOOGLE_CLIENT_ID')
+    app.config['GOOGLE_CLIENT_SECRET'] = environ.get('GOOGLE_CLIENT_SECRET')
+    app.config['GOOGLE_DISCOVERY_URL'] = environ.get('GOOGLE_CLIENT_ID')
 
 result = DB.connect(app.config['DB_URL'], app.config['ENV'])
 
