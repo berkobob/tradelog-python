@@ -1,7 +1,12 @@
 config.py
+scratch.py
 .venv
 .vscode
 .ds_store
 *.csv
 config/
 __pycache__/
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
