@@ -29,6 +29,7 @@ class User(UserMixin):
     @classmethod
     def me(cls, email, name):
         result = DB.read_one(cls.collection, {'email': email, 'name': name})
-        if not result.success or not result.message: return result
+        if not result.success: return result
+        if not result.message: return Result(False, "User not found", "WARNING")
         return Result(True, cls(result.message))
     
