@@ -25,4 +25,10 @@ class User(UserMixin):
     @classmethod
     def new(cls, user):
         return DB.create(cls.collection, user)
+
+    @classmethod
+    def me(cls, email, name):
+        result = DB.read_one(cls.collection, {'email': email, 'name': name})
+        if not result.success: return result
+        return Result(True, cls(result.message))
     

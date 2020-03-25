@@ -75,3 +75,15 @@ def callback():
 def logout():
     logout_user()
     return("<p>You are logged out</p>")
+
+@user.route('/me')
+def temp():
+    email = request.args.get('email')
+    name = request.args.get('name')
+    result = User.me(email, name)
+    if result.success:
+        if result.message:
+            login_user(result.message)
+            return "You're logged in ", result.message.name
+    return "Invalid credentials"
+
