@@ -6,6 +6,8 @@
 # 3. process here
 
 from src.model.portfolio import Portfolio
+from src.model.position import Position
+from src.model.trade import Trade
 from src.common.result import Result
 from src.model.raw import Raw
 
@@ -22,29 +24,22 @@ class Log:
     @staticmethod
     def create_portfolio(port: str) -> Result:
         """ createa a new portfolio if the name doesn't already exist """
-        port['name'] = port['name'].strip()
-        if port['name'] == "":
-            return Result(success=False, message="Portfolio name cannot be blank", severity='WARNING')
-        if port['name'] in Log.get_port_names().message:
-            return Result(success=False, message='This portfolio name already exists', 
-                        severity='WARNING')
-        return Portfolio(port).create()
+        return Portfolio.new(port['name'].strip(), port['description'])
 
     @staticmethod
     def load_trades_from(filename) -> Result:
         """ For each row in the file create a raw trade and return the count """
-        count = 0
+        count, errors = 0, 0
         try:
             with open(filename) as file:
                 headers = file.readline().split(',')
                 for row in file:
-                    raw = Raw(dict(zip(headers, row.split(','))))
-                    raw.create()
-                    count += 1
+                    raw = Raw.new(dict(zip(headers, row.split(','))))
+                    if raw.success: count += 1
+                    else: error += 1
         except Exception as e:
             return Result(success=False, message=str(e), severity='ERROR')
-
-        return Result(success=True, message=count, severity='SUCCESS')
+        return Result(success=True, message=(count, errors), severity='SUCCESS')
 
     @staticmethod
     def get_raw_trades():
@@ -87,8 +82,20 @@ class Log:
         return Result(True, portfolio.get_stocks())
 
     @staticmethod
-    def get_positions(port: str, stock: str):
+    def get_open_positions(port: str, stock: str):
         result = Portfolio.get(port)
         if not result.success: return result
-        portfolio = result.message
-        return Result(True, portfolio.get_positions(stock))
+        return result.message.get_open_positions(stock)
+
+    @staticmethod
+    def get_closed_positions(port: str, stock: str):
+        result = Portfolio.get(port)
+        if not result.success: return result
+        return result.message.get_closed_positions(stock)
+
+    @staticmethod
+    def get_trades(_id):
+        result = Position.get(_id)
+        if not result.success: return result
+        trades = [Trade.get(trade).message for trade in result.message.trades]
+        return Result(success=True, message=trades)

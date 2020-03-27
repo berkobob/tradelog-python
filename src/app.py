@@ -5,6 +5,7 @@ from src.view.user import user
 from src.common.database import DB
 from src.model.user import User
 from flask_login import LoginManager
+from datetime import datetime
 
 app = Flask(__name__)
 app.register_blueprint(web)
@@ -33,3 +34,13 @@ if not result.success:
     print(result.message)
     exit()
 else: print(f" * Succesfully connected to the {app.config['ENV']} database *")
+
+
+@app.template_filter('ftime')
+def _format_date(date):
+    return datetime.strftime(date, "%d/%m/%Y")
+
+@app.template_filter('ffloat')
+def _format_float(num):
+    # return '{:{width}.{prec}f}'.format(num, width=5, prec=2)
+    return '{:6.2f}'.format(num)

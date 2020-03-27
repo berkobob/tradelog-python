@@ -1,25 +1,65 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="w3-container w3-responsive">
-    {% if stocks[0] %}
-    <table class="w3-table">
-        <tr>
-            <th>STOCK</th>
-            <th>POSITIONS</th>
-            <th>OPEN</th>
-            <th>CLOSED</th>
-        </tr>
-        {% for stock in stocks %}
-        <tr>
-            <td><a href="/port/{{stock['port']}}/{{stock['stock']}}">{{stock['stock']}}</a></td>
-            <td>{{stock['open']|length + stock['closed']|length}}</td>
-            <td><a href="/port/{{stock['port']}}/{{stock['stock']}}/open">{{stock['open']|length}}</a></td>
-            <td><a href="/port/{{stock['port']}}/{{stock['stock']}}/closed">{{stock['closed']|length}}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
+    {% if open[0] %}
+        <h3><a href="/port/{{open[0].port}}">{{open[0].port}}</a>/{{open[0].stock}}</h3>
     {% else %}
-    <div class="w3-container w3-large"><p>This portfolio contains no stocks</p></div>
+        <h3><a href="/port/{{closed[0].port}}">{{closed[0].port}}</a>/{{closed[0].stock}}</h3>
     {% endif %}
+    <table class="w3-table">
+        {% if open[0] %}
+            <tr>
+                <th class="w3-center">OPEN</th>
+                <th class="w3-right-align">TRADES</th>
+                <th class="w3-right-align">QUANTITY</th>
+                <th class="w3-right-align">COMMISSION</th>
+                <th class="w3-right-align">CASH</th>
+            </tr>
+            {% for stock in open %}
+                <tr>
+                    <td class="w3-center">{{ stock.open|ftime }}</td>
+                    <td class="w3-right-align">{{ stock.trades|length }}</td>
+                    <td class="w3-right-align">{{ stock.quantity }}</td>
+                    <td class="w3-right-align">{{ stock.commission|ffloat }}</td>
+                    <td class="w3-right-align">{{ stock.cash|ffloat }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td class="w3-right-align"><b>{{ open|sum(attribute='quantity') }}</b></td>
+                <td class="w3-right-align"><b>{{ open|sum(attribute='commission')|ffloat }}</b></td>
+                <td class="w3-right-align"><b>{{ open|sum(attribute='cash')|ffloat }}</b></td>
+            </tr>
+            <tr><td></td></tr>
+            <tr><td></td></tr>
+            <tr><td></td></tr>
+        {% endif %}
+        {% if closed[0] %}
+        <tr>
+            <th class="w3-center">CLOSED</th>
+            <th class="w3-right-align">TRADES</th>
+            <th class="w3-right-align">QUANTITY</th>
+            <th class="w3-right-align">COMMISSION</th>
+            <th class="w3-right-align">CASH</th>
+        </tr>
+        {% for stock in closed %}
+            <tr>
+                <td class="w3-center">{{ stock.open|ftime }}</td>
+                <td class="w3-right-align">{{ stock.trades|length }}</td>
+                <td class="w3-right-align">{{ stock.quantity }}</td>
+                <td class="w3-right-align">{{ stock.commission|ffloat }}</td>
+                <td class="w3-right-align">{{ stock.cash|ffloat }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td></td>
+            <td></td>
+            <td class="w3-right-align"><b>{{ closed|sum(attribute='quantity') }}</b></td>
+            <td class="w3-right-align"><b>{{ closed|sum(attribute='commission')|ffloat }}</b></td>
+            <td class="w3-right-align"><b>{{ closed|sum(attribute='cash')|ffloat }}</b></td>
+        </tr>
+        {% endif %}
+    </table>
 </div>
 {% endblock %}

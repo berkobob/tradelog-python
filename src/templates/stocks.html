@@ -2,19 +2,20 @@
 {% block content %}
 <div class="w3-container w3-responsive">
     {% if stocks[0] %}
+    <h3>{{stocks[0].port}}</h3>
     <table class="w3-table">
         <tr>
             <th>STOCK</th>
-            <th>POSITIONS</th>
-            <th>OPEN</th>
-            <th>CLOSED</th>
+            <th class="w3-center">POSITIONS</th>
+            <th class="w3-center">OPEN</th>
+            <th class="w3-center">CLOSED</th>
         </tr>
         {% for stock in stocks %}
         <tr>
             <td><a href="/port/{{stock['port']}}/{{stock['stock']}}">{{stock['stock']}}</a></td>
-            <td>{{stock['open']|length + stock['closed']|length}}</td>
-            <td><a href="/port/{{stock['port']}}/{{stock['stock']}}/open">{{stock['open']|length}}</a></td>
-            <td><a href="/port/{{stock['port']}}/{{stock['stock']}}/closed">{{stock['closed']|length}}</a></td>
+            <td class="w3-center">{{stock['open']|length + stock['closed']|length}}</td>
+            <td class="w3-center"><a href="/port/{{stock['port']}}/{{stock['stock']}}/open">{{stock['open']|length}}</a></td>
+            <td class="w3-center"><a href="/port/{{stock['port']}}/{{stock['stock']}}/closed">{{stock['closed']|length}}</a></td>
         </tr>
         {% endfor %}
     </table>

@@ -1,38 +1,61 @@
 from src.model.model import Model
 from src.common.result import Result
 from datetime import datetime
+from bson.objectid import ObjectId
 
 class Trade(Model):
     """ buying or selling a stock or option """
     collection = "trade"
 
     def __init__(self, trade):
-        self.date = datetime.strptime(trade['TradeDate'], "%Y%m%d")
-        self.bos = trade['Buy/Sell']
-        self.quantity = int(trade['Quantity'])
-        self.symbol = trade['Symbol']
-        self.stock = _parse(trade['Symbol'])
-        self.expiry = datetime.strptime(trade['Expiry'], "%d/%m/%Y") if trade['Expiry'] else None
-        self.strike = float(trade['Strike']) if trade['Strike'] else None
-        self.poc = trade['Put/Call'] if trade['Put/Call'] else None
-        self.price = float(trade['TradePrice'])
-        self.commission = float(trade['IBCommission'])
-        self.cash = float(trade['NetCash'])
-        self.asset = trade['AssetClass']
-        self.ooc = trade['Open/CloseIndicator']
-        self.multiplier = int(trade['Multiplier'])
-        self.notes = trade['Notes/Codes\n']
-        if self.notes and self.notes[-1] == '\n': self.notes = self.notes[0:-1]
+        self._id = trade['_id']
         self.raw_id = trade['raw_id']
         self.port = trade['port']
-        if '_id' in trade.keys(): self._id = trade['_id']
+        self.date = trade['date']
+        self.bos = trade['bos']
+        self.quantity = trade['quantity']
+        self.symbol = trade['symbol']
+        self.stock = trade['stock']
+        self.expiry = trade['expiry']
+        self.strike = trade['strike']
+        self.poc = trade['poc']
+        self.price = trade['price']
+        self.proceeds = trade['proceeds']
+        self.commission = trade['commission']
+        self.cash = trade['cash']
+        self.asset = trade['asset']
+        self.ooc = trade['ooc']
+        self.multiplier = trade['multiplier']
+        self.notes = trade['notes']
 
     @classmethod
     def new(cls, raw):
         """ Routine to create a new trade. Return the trade """
         # Move _id and port down in 'trade' to make class creation easy
-        raw.trade['raw_id'] = raw._id 
-        raw.trade['port'] = raw.port
+        try:
+            raw.trade['_id'] = ObjectId()
+            raw.trade['raw_id'] = raw._id 
+            raw.trade['port'] = raw.port
+            raw.date = datetime.strptime(raw.trade['TradeDate'], "%Y%m%d")
+            raw.bos = raw.trade['Buy/Sell']
+            raw.quantity = int(raw.trade['Quantity'])
+            raw.symbol = raw.trade['Symbol']
+            raw.stock = _parse(raw.trade['Symbol'])
+            raw.expiry = datetime.strptime(raw.trade['Expiry'], "%d/%m/%Y") if raw.trade['Expiry'] else None
+            raw.strike = float(raw.trade['Strike']) if raw.trade['Strike'] else None
+            raw.poc = raw.trade['Put/Call'] if raw.trade['Put/Call'] else None
+            raw.price = float(raw.trade['TradePrice'])
+            raw.proceeds = float(raw.trade['Proceeds'])
+            raw.commission = float(raw.trade['IBCommission'])
+            raw.cash = float(raw.trade['NetCash'])
+            raw.asset = raw.trade['AssetClass']
+            raw.ooc = raw.trade['Open/CloseIndicator']
+            raw.multiplier = int(raw.trade['Multiplier'])
+            raw.notes = raw.trade['Notes/Codes\n']
+            if raw.notes and raw.notes[-1] == '\n': raw.notes = raw.notes[0:-1]
+        except Exception as e:
+            return Result(success=False, message=str(e), severity='ERROR')
+
         trade = cls(raw.trade)
         return trade.create()
 

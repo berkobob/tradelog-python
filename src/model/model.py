@@ -11,26 +11,26 @@ class Model(metaclass=ABCMeta):
         """ Save a copy of the class in the DB, add the _id and return the object """
         result = DB.create(self.collection, vars(self))
         if not result.success: return result
-        self._id = ObjectId(result.message)
-        return Result(success=True, message=self, severity='SUCCESS')
+        return Result(success=True, message=self)
 
     @classmethod
     def read(cls, query, many=False):
         if many: 
             result = DB.read_many(cls.collection, query)
             if result.success: 
-                result.message = [cls(item) for item in result.message]
+                result.message = [cls(**item) for item in result.message]
         else: 
             result = DB.read_one(cls.collection, query)
             if result.success and result.message:
-                    result.message = cls(result.message)
+                    result.message = cls(**result.message)
         return result
 
     @classmethod
     def get(cls, _id):
         return cls.read({'_id': ObjectId(_id)})
         
-    def update(self, values):
+    def update(self, values=None):
+        if not values: values = vars(self)
         result = DB.update(self.collection, 
                             {"_id": ObjectId(self._id)}, {"$set": values})
         

@@ -29,7 +29,7 @@ class DB:
         Insert a new record into the passed collection and return a Result
         """
         try:
-            message = cls.db[collection].insert_one(record).inserted_id
+            message = cls.db[collection].insert_one(record)
         except Exception as e:
             return Result(success=False, message=str(e), severity='WARNING')
         return Result(success=True, message=str(message), severity='SUCCESS')

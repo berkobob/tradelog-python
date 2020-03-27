@@ -1,5 +1,6 @@
 from src.model.model import Model
 from src.common.result import Result
+from bson.objectid import ObjectId
 
 class Position(Model):
     """
@@ -7,29 +8,37 @@ class Position(Model):
     """
     collection = "position"
 
-    def __init__(self, pos):
-        if '_id' in pos.keys(): self._id = pos['_id']
-        self.port = pos['port']
-        self.symbol = pos['symbol']
-        self.open = pos['open']
-        self.closed = False
-        self.stock = pos['stock']
-        self.trades = pos['trades']
-        self.quantity = pos['quantity']
-        self.commission = pos['commission']
-        self.cash = pos['cash']
+    def __init__(self, position):
+        self._id = position['_id']
+        self.port = position['port']
+        self.symbol = position['symbol']
+        self.open = position['open']
+        self.closed = position['closed'] 
+        self.stock = position['stock']
+        self.trades = position['trades']
+        self.quantity = position['quantity']
+        self.commission = position['commission']
+        self.proceeds = position['proceeds']
+        self.cash = position['cash']
+        self.days = position['days']
+        self.rate = position['rate']
 
     @classmethod
     def new(cls, trade):
         position = cls({
+            '_id': ObjectId(),
             'port': trade.port,
             'symbol': trade.symbol,
             'open': trade.date,
+            'closed': False,
             'stock': trade.stock,
             'trades': [trade._id],
             'quantity': trade.quantity,
             'commission': trade.commission,
-            'cash': trade.cash
+            'proceeds': trade.proceeds,
+            'cash': trade.cash,
+            'days': 0,
+            'rate': 0.0
         })
         return position.create()
 
@@ -37,6 +46,10 @@ class Position(Model):
         self.trades.append(trade._id)
         self.quantity += trade.quantity
         self.commission += trade.commission
+        self.proceeds += trade.proceeds
         self.cash += trade.cash
-        if self.quantity == 0: self.closed = trade.date
+        if self.quantity == 0: # Then the position is closed
+            self.closed = trade.date
+            self.days = (self.closed - self.open).days
+            self.rate = self.proceeds / self.days
         return self.update(vars(self))

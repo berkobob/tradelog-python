@@ -49,10 +49,11 @@ def load():
     result = Log.load_trades_from(f.filename)
 
     if result.success:
-        flash(f'{f.filename} loaded successfully! There are {result.message} new raw trades',
+        flash(f'{f.filename} loaded successfully! There are {result.message[0]} new raw \
+            trades with {result.message[1]} errors',
                 'SUCCESS')
     else:
-        flash(f'failed to process {f.filename}', result.severity)   
+        flash(f'Failed to process {f.filename}. {result.message}', result.severity)   
 
     return render_template('load.html')
 
@@ -79,15 +80,26 @@ def commit():
 def port(port):
     """ List the stocks in this port """
     result = Log.get_stocks(port)
-    if not result.success: flash(result.message, result.severity)
+    if not result.success:
+        flash(result.message, result.severity)
+        result.message = []
+    
     return render_template("stocks.html", stocks=result.message)
 
 @web.route('/port/<port>/<stock>')
 def stock(port, stock):
     """ List the positions in this stock in this port """
-    result = Log.get_positions(port, stock)
-    if not result.success: flash(result.message, result.severity)
-    return render_template("positions.html", open=result.message[0], closed=result.message[1])
+    open = Log.get_open_positions(port, stock)
+    if not open.success: 
+        flash(open.message, open.severity)
+        open.message=[]
+    if not open.message: flash("There are no open positions", "WARNING")
+    closed = Log.get_closed_positions(port, stock)
+    if not closed.success: 
+        flash(closed.message, closed.severity)
+        closed.message=[]
+    if not closed.message: flash("There are no closed positions", "WARNING")
+    return render_template("positions.html", open=open.message, closed=closed.message)
 
 @web.route('/port/<port>/<stock>/open')
 def open(port, stock):
@@ -97,7 +109,17 @@ def open(port, stock):
 @web.route('/port/<port>/<stock>/closed')
 def closed(port, stock):
     """ List closed positions and trades """
-    return f"list closed {stock} positions in {port}"
+    result = Log.get_closed_positions(port=port, stock=stock)
+    if not result.success:
+        flash(result.message, result.severity)
+        result.message = []
+    return render_template('closed.html', closed=result.message)
+
+@web.route('/position/<_id>')
+def position(_id):
+    result = Log.get_trades(_id)
+    if not result.success: flash(result.message, result.severity)
+    return render_template("trades.html", position=result.message)
 
 @web.route('/logout')
 def logout():
@@ -116,3 +138,4 @@ def _ports():
               'WARNING')
     ports = result.message
     return ports
+

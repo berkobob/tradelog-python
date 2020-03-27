@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="w3-container w3-responsive">
+    <h3><a href="/port/{{closed[0].port}}">{{closed[0].port}}</a>/<a href="/port/{{closed[0].port}}/{{closed[0].stock}}">{{closed[0].stock}}</a>/Closed</h3>
+    <table class="w3-table">
+        <tr>
+            <th class="w3-center">OPEN</th>
+            <th class="w3-center">CLOSED</th>
+            <th class="w3-right-align">TRADES</th>
+            <th class="w3-right-align">PROCEEDS</th>
+            <th class="w3-right-align">COMMISSION</th>
+            <th class="w3-right-align">CASH</th>
+            <th class="w3-center">DAYS</th>
+            <th class="w3-right-align">RATE</th>
+        </tr>
+        {% for pos in closed %}
+            <tr onClick="window.location='/position/{{pos._id}}';">
+                <td class="w3-center">{{pos.open|ftime}}</td>
+                <td class="w3-center">{{pos.closed|ftime}}</td>
+                <td class="w3-right-align">{{pos.trades|length}}</td>
+                <td class="w3-right-align">{{pos.proceeds|ffloat}}</td>
+                <td class="w3-right-align">{{pos.commission|ffloat}}</td>
+                <td class="w3-right-align">{{pos.cash|ffloat}}</td>
+                <td class="w3-center">{{pos.days}}</td>
+                <td class="w3-right-align">{{pos.rate|ffloat}}</td>
+            </tr>
+        {% endfor %}
+{% endblock %}

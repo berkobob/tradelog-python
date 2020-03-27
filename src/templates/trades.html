@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="w3-container w3-responsive">
+    <h3><a href="/port/{{position[0].port}}">{{position[0].port}}</a>/<a href="/port/{{position[0].port}}/{{position[0].stock}}">{{position[0].stock}}</a>/Position</h3>
+    <table class="w3-table">
+        <tr>
+            <th class="w3-center">DATE</th>
+            <th class="w3-center">BUY/SELL</th>
+            <th class="w3-right-align">QTY</th>
+            <th class="w3-right-align">STOCK</th>
+            <th class="w3-right-align">EXPIRY</th>
+            <th class="w3-right-align">STRIKE</th>
+            <th class="w3-center">PUT/CALL</th>
+            <th class="w3-right-align">PRICE</th>
+            <th class="w3-right-align">PROCEEDS</th>
+            <th class="w3-right-align">COMM</th>
+            <th class="w3-right-align">CASH</th>
+            <th class="w3-right-align">OPEN/CLOSE</th>
+            <th class="w3-right-align">MULT</th>
+            <th class="w3-right-align">NOTES</th>
+        </tr>
+        {% for trade in position %}
+            <tr>
+                <td class="w3-center">{{trade.date|ftime}}</td>
+                <td class="w3-center">{{trade.bos}}</td>
+                <td class="w3-right-align">{{trade.quantity}}</td>
+                <td class="w3-right-align">{{trade.stock}}</td>
+                <td class="w3-right-align">{{trade.expiry|ftime}}</td>
+                <td class="w3-right-align">{{trade.strike}}</td>
+                <td class="w3-right-align">{{trade.poc}}</td>
+                <td class="w3-right-align">{{trade.price|ffloat}}</td>
+                <td class="w3-right-align">{{trade.proceeds|ffloat}}</td>
+                <td class="w3-right-align">{{trade.commission|ffloat}}</td>
+                <td class="w3-right-align">{{trade.cash|ffloat}}</td>
+                <td class="w3-center">{{trade.ooc}}</td>
+                <td class="w3-right-align">{{trade.multiplier}}</td>
+                <td class="w3-right-align">{{trade.notes}}</td>
+            </tr>
+        {% endfor %}
+{% endblock %}
