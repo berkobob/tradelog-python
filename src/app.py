@@ -16,7 +16,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id).message
+    return User.get(user_id)
 
 try:
     app.config.from_object('config.'+app.config['ENV'])
@@ -27,13 +27,8 @@ except:
     app.config['GOOGLE_CLIENT_SECRET'] = environ.get('GOOGLE_CLIENT_SECRET')
     app.config['GOOGLE_DISCOVERY_URL'] = environ.get('GOOGLE_DISCOVERY_URL')
 
-result = DB.connect(app.config['DB_URL'], app.config['ENV'])
-
-if not result.success:
-    print ("*** FATAL ERROR. Cannot connect to database ***")
-    print(result.message)
-    exit()
-else: print(f" * Succesfully connected to the {app.config['ENV']} database *")
+DB.connect(app.config['DB_URL'], app.config['ENV'])
+print(f" * Succesfully connected to the {app.config['ENV']} database *")
 
 
 @app.template_filter('ftime')

@@ -1,5 +1,6 @@
 from pymongo import MongoClient, cursor
 from src.common.result import Result
+from src.common.exception import AppError
 
 class DB:
     """ 
@@ -20,8 +21,7 @@ class DB:
                                 socketTimeoutMS=None, socketKeepAlive=True, 
                                 connect=False, maxPoolsize=1)[env]
         except Exception as e:
-            return Result(success=False, message=str(e), severity='ERROR')
-        return Result(success=True, message=cls.db, severity='SUCCESS')
+            raise AppError(e, 'ERROR')
 
     @classmethod
     def create(cls, collection: str, record: str) -> Result:
@@ -29,39 +29,44 @@ class DB:
         Insert a new record into the passed collection and return a Result
         """
         try:
-            message = cls.db[collection].insert_one(record)
+            result = cls.db[collection].insert_one(record)
         except Exception as e:
-            return Result(success=False, message=str(e), severity='WARNING')
-        return Result(success=True, message=str(message), severity='SUCCESS')
+            raise AppError(e)
+        else:
+            return result
 
     @classmethod
     def read_one(cls, collection: str, query: dict):
         try:
-            message = cls.db[collection].find_one(query)
+            document = cls.db[collection].find_one(query)
         except Exception as e:
-            return Result(success=False, message=str(e), severity='ERROR')
-        return Result(success=True, message=message, severity='SUCCESS')
+            return AppError(e)
+        else:
+            return document
 
     @classmethod
     def read_many(cls, collection, query):
         try:
-            message = cls.db[collection].find(query)
+            documents = cls.db[collection].find(query)
         except Exception as e:
-            return Result(success=False, message=str(e), severity='ERROR')
-        return Result(success=True, message=message, severity='SUCCESS')
+            raise AppError(e)
+        else:
+            return documents
 
     @classmethod
     def update(cls, collection, query, values):
         try:
-            message = cls.db[collection].update(query, values)
+            result = cls.db[collection].update(query, values)
         except Exception as e:
-            return Result(success=False, message=str(e), severity='ERROR')
-        return Result(success=True, message=message, severity='SUCCESS')
+            raise AppError(e)
+        else:
+            return result
 
     @classmethod
     def delete(cls, collection, query):
         try:
-            message = cls.db[collection].delete_one(query)
+            result = cls.db[collection].delete_one(query)
         except Exception as e:
-            return Result(success=False, message=str(e), severity='ERROR')
-        return Result(success=True, message=message, severity='SUCCESS')
+            raise AppError(e)
+        else: 
+            return result

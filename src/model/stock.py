@@ -31,49 +31,42 @@ class Stock(Model):
             'cash': 0.0,
             }).create()
 
+    @classmethod
+    def get(cls, port, stock):
+        """ Override model's get to use the stock name instead of _id """
+        return cls.read({'port': port, 'stock': stock})
+
     def add(self, trade):
         """ Add this trade to a new or existing position """
-        exists = [Position.get(pos) for pos in self.open 
-                    if Position.get(pos).message.symbol == trade.symbol]
-
-        if exists: # Symbol has a position already e.g stock, option etc
-            result = exists[0].message.add(trade)
+        if trade.symbol in self.open: # Symbol has a position already e.g stock, option etc
+            position = Position.get(trade.port, trade.symbol)
+            position.add(trade)
+            result = "CHANGED"
         else: # There are no positions on this symbol yet
-            result = Position.new(trade) 
-            if result.success: self.open.append(result.message._id)
-
-        if not result.success: return result
-        position = result.message
-
-        if not result.success: return result
-        position = result.message
+            position = Position.new(trade)
+            self.open.append(position.symbol)
+            result = "OPENED"
 
         if position.closed:
-            self.closed.append(position._id)
-            self.open.remove(position._id)
+            self.closed.append(position.symbol)
+            self.open.remove(position.symbol)
             self.proceeds += position.proceeds
             self.commission += position.commission
             self.cash += position.cash
-            severity = "CLOSED"
-        else:   
-            if exists: severity = "CHANGED"
-            else: severity = "OPENED"
+            result = "CLOSED"
 
-        if not exists or position.closed:
-            result = self.update(vars(self))
-            if not result.success: return result
-        
-        return Result(success=True, message=position, severity=severity)
+        self.update()
+        return result
 
-    def get_open_positions(self):
-        return [Position.get(id).message for id in self.open]
+    def is_flat(self):
+        return self.open
 
-    def get_closed_positions(self):
-        return [Position.get(id).message for id in self.closed]
+    # def get_open_positions(self):
+    #     return [Position.get(id) for id in self.open]
 
-    def get_positions(self):
-        positions = self.open + self.closed
-        return [Position.get(id).message for id in positions]
+    # def get_closed_positions(self):
+    #     return [Position.get(id) for id in self.closed]
 
-    def __str__(self):
-        return str(vars(self))
+    # def get_positions(self):
+    #     positions = self.open + self.closed
+    #     return [Position.get(id) for id in positions]

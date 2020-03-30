@@ -3,41 +3,31 @@ from src.model.trade import Trade
 from src.model.stock import Stock
 from src.common.result import Result
 from bson.objectid import ObjectId
+from src.common.exception import AppError
 
 class Portfolio(Model):
     """ A list of stock with share and option positions """
     collection = "portfolios"
 
-    # def __init__(self, port):
-    #     self.name = port['name']
-    #     self.description = port['description']
-    #     self.stocks = port['stocks']
-    #     self._id = port['_id']
-    #     self.proceeds = port['proceeds']
-    #     self.commission = port['commission']
-    #     self.cash = port['cash']
-
-
-    def __init__(self, _id: object, name: str, description: str, stocks: list, proceeds: float,
-                commission: float, cash: float):
-        self._id = _id
-        self.name = name
-        self.description = description
-        self.stocks = stocks
-        self.proceeds = proceeds
-        self.commission = commission
-        self.cash = cash
+    def __init__(self, port):
+        self._id = port['_id']
+        self.name = port['name']
+        self.description = port['description']
+        self.stocks = port['stocks']
+        self.proceeds = port['proceeds']
+        self.commission = port['commission']
+        self.cash = port['cash']
 
     @classmethod
-    def new(cls, port, description):
-        if port == "":
-            return Result(success=False, message="Please provide a portfolio name", severity='WARNING')
-        if cls.get(port).success:
-            return Result(success=False, message='This portfolio name already exists', 
-                        severity='WARNING')
-        return cls(**{
+    def new(cls, port):
+        name = port['name'].strip()
+        description = port['description'].strip()
+        if name == "": raise AppError('Please provide a portfolio name', 'WARNING')
+        if cls.get(name): raise AppError('This portfolio name already exists', 'WARNING')
+
+        return cls({
             '_id': ObjectId(),
-            'name': port,
+            'name': name,
             'description': description,
             'stocks': [],
             'proceeds': 0.0,
@@ -48,49 +38,37 @@ class Portfolio(Model):
     @classmethod
     def get(cls, port):
         """ Override get method in Model to use port name instead of _id """
-        result = cls.read({'name': port})
-        if not result.success: return result
-        if not result.message: return Result(success=False,
-                                             message=f"portfolio {port} not found", 
-                                             severity='ERROR')
-        return result
+        return cls.read({'name': port})
 
     def commit(self, raw):
         """ Get a raw trade, process it into a trade and then add it to this port """
-        # Update the raw record with this port name
-        result = raw.commit(self.name)
-        if not result.success: return result
-        
-        # Process the raw trade
-        result = Trade.new(raw)
-        if not result.success: return result
-        trade = result.message
+        # Update the raw record with this port name & create a trade
+        raw.commit(self.name)
+        trade = Trade.new(raw)
 
-        # Add the trade to the stock or create new if first one
-        result = Stock.read({'port': self.name, 'stock': trade.stock})
-        if not result.success: return result
+        # Does the stock exist in this portfolio
+        if trade.stock in self.stocks: # Yes
+            stock = Stock.get(port=self.name, stock=trade.stock)
+            msg = stock.add(trade)
+        else: # This trade represents a new stock to this portfolio
+            stock = Stock.new(trade)
+            self.stocks.append(stock.stock)
+            self.update({'stocks': self.stocks})
+            msg = "OPENED"
 
-        if not result.message: # This trade represents a new stock to this port
-            result = Stock.new(trade)
-            if not result.success: return result
-            stock = result.message
-            self.stocks.append(stock._id)
-            temp = self.update({'stocks': self.stocks})
-            if not temp.success: return temp
-
-        result = result.message.add(trade)
-        if not result.success: return result
-        if result.severity == "CLOSED":
-            self.proceeds += result.message.proceeds 
-            self.commission += result.message.commission
-            self.cash += result.message.cash
+        # # If this trade closes the position then update portfolio totals
+        # if msg == 'CLOSED':
+        #     self.proceeds += result.message.proceeds 
+        #     self.commission += result.message.commission
+        #     self.cash += result.message.cash
+        #     self.update()
 
         pre = f"By {trade.bos}ING {trade.quantity} {trade.stock} {trade.asset} for {trade.proceeds} this trade was "
 
-        return Result(success=True, message=pre+result.severity)  # return a message about the committed trade
+        return pre+msg  # return a message about the committed trade
 
-    def get_stocks(self):
-        return [Stock.get(id).message for id in self.stocks]
+    # def get_stocks(self):
+    #     return [Stock.get(id).message for id in self.stocks]
 
     def get_open_positions(self, stock_name):
         stock = self._get_stock(stock_name)

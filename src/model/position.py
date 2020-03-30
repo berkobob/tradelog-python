@@ -12,9 +12,9 @@ class Position(Model):
         self._id = position['_id']
         self.port = position['port']
         self.symbol = position['symbol']
+        self.stock = position['stock']
         self.open = position['open']
         self.closed = position['closed'] 
-        self.stock = position['stock']
         self.trades = position['trades']
         self.quantity = position['quantity']
         self.commission = position['commission']
@@ -25,7 +25,7 @@ class Position(Model):
 
     @classmethod
     def new(cls, trade):
-        position = cls({
+        return cls({
             '_id': ObjectId(),
             'port': trade.port,
             'symbol': trade.symbol,
@@ -39,8 +39,12 @@ class Position(Model):
             'cash': trade.cash,
             'days': 0,
             'rate': 0.0
-        })
-        return position.create()
+        }).create()
+
+    @classmethod
+    def get(cls, port, symbol):
+        """ Override model's get to use the stock name instead of _id """
+        return cls.read({'port': port, 'symbol': symbol})
 
     def add(self, trade):
         self.trades.append(trade._id)
@@ -52,4 +56,4 @@ class Position(Model):
             self.closed = trade.date
             self.days = (self.closed - self.open).days
             self.rate = self.proceeds / self.days
-        return self.update(vars(self))
+        return self.update()

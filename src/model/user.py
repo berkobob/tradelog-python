@@ -14,13 +14,8 @@ class User(UserMixin):
 
     @classmethod
     def get(cls, user_id):
-        result = DB.read_one(cls.collection, {'_id': user_id})
-        if result.success:
-            if result.message:
-                return Result(success=True, message=cls(result.message))
-            else:
-                return Result(success=False, message="User not found", severity="WARNING")
-        return result
+        user = DB.read_one(cls.collection, {'_id': user_id})
+        if user: return cls(user)
 
     @classmethod
     def new(cls, user):

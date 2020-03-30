@@ -9,6 +9,7 @@ from src.model.portfolio import Portfolio
 from src.model.position import Position
 from src.model.trade import Trade
 from src.common.result import Result
+from src.common.exception import AppError
 from src.model.raw import Raw
 
 class Log:
@@ -16,35 +17,47 @@ class Log:
     @staticmethod
     def get_port_names() -> Result:
         """ Returns a list of portfolio names """
-        result = Portfolio.read({}, many=True)
-        if not result.success: return result
-        result.message = [port.name for port in result.message]
-        return result
+        try:
+            portfolios = Portfolio.read({}, many=True)
+        except AppError as e:
+            return Result(success=False, message=e.message, severity=e.severity)
+        else:
+            names = [port.name for port in portfolios]
+            return Result(success=True, message=names)
 
     @staticmethod
     def create_portfolio(port: str) -> Result:
         """ createa a new portfolio if the name doesn't already exist """
-        return Portfolio.new(port['name'].strip(), port['description'])
+        try:
+            message = Portfolio.new(port)
+        except AppError as e:
+            return Result(success=False, message=e.message, severity=e.severity)
+        else:
+            return Result(success=True, message=message)
 
     @staticmethod
     def load_trades_from(filename) -> Result:
         """ For each row in the file create a raw trade and return the count """
-        count, errors = 0, 0
+        count = 0
         try:
             with open(filename) as file:
                 headers = file.readline().split(',')
                 for row in file:
-                    raw = Raw.new(dict(zip(headers, row.split(','))))
-                    if raw.success: count += 1
-                    else: error += 1
+                    Raw.new(dict(zip(headers, row.split(','))))
+                    count += 1
         except Exception as e:
             return Result(success=False, message=str(e), severity='ERROR')
-        return Result(success=True, message=(count, errors), severity='SUCCESS')
+        return Result(success=True, message=count, severity='SUCCESS')
 
     @staticmethod
     def get_raw_trades():
         """ Return only raw trades that haven't been committed yet i.e. no port value """
-        return Raw.read({'port': None}, many=True)
+        try:
+            raw_trades = Raw.read({'port': None}, many=True)
+        except AppError as e:
+            return Result(success=False, message=e, severity='ERROR')
+        else:
+            return Result(success=True, message=raw_trades)
 
     @staticmethod
     def commit_raw_trade(_id_str, port):
@@ -57,22 +70,14 @@ class Log:
                         "WARNING")
 
         # Get the raw trade to be processed by its _id
-        result = Raw.get(_id_str)
-        if not result.success: return result 
-        elif not result.message: 
-            return Result(success=False, message=
-                        f"The trade with id {_id_str} could not be found in the raw collection",
-                        severity='ERROR')
-        raw_trade = result.message
+        raw_trade = Raw.get(_id_str)
+        assert raw_trade
 
         # Get the portfolio to which this trade belongs by the port name
-        result = Portfolio.get(port)
-        if not result.success: return result
-        portfolio = result.message
-        if not portfolio: 
-            return Result(success=False, message=f"Cannot find portfolio {port} for some reason.", severity="ERROR")
+        portfolio = Portfolio.get(port)
+        assert portfolio
 
-        return portfolio.commit(raw_trade)  # return message here
+        return Result(success=True, message=portfolio.commit(raw_trade))
 
     @staticmethod
     def get_stocks(port: str):
@@ -93,9 +98,9 @@ class Log:
         if not result.success: return result
         return result.message.get_closed_positions(stock)
 
-    @staticmethod
-    def get_trades(_id):
-        result = Position.get(_id)
-        if not result.success: return result
-        trades = [Trade.get(trade).message for trade in result.message.trades]
-        return Result(success=True, message=trades)
+    # @staticmethod
+    # def get_trades(_id):
+    #     result = Position.get(_id)
+    #     if not result.success: return result
+    #     trades = [Trade.get(trade).message for trade in result.message.trades]
+    #     return Result(success=True, message=trades)

@@ -49,8 +49,7 @@ def load():
     result = Log.load_trades_from(f.filename)
 
     if result.success:
-        flash(f'{f.filename} loaded successfully! There are {result.message[0]} new raw \
-            trades with {result.message[1]} errors',
+        flash(f'{f.filename} loaded successfully! There are {result.message} new raw trades',
                 'SUCCESS')
     else:
         flash(f'Failed to process {f.filename}. {result.message}', result.severity)   
@@ -71,7 +70,10 @@ def commit():
         flash(result.message, result.severity)
 
     result=Log.get_raw_trades()
-    if not result.success: flash(result.message, result.severity)
+
+    if not result.success: 
+        flash(result.message, result.severity)
+        result.message = []
     trades = sorted(result.message, key = lambda i: i.trade[sortby], reverse=reverse)
     reverse = not reverse
     return render_template("raw_trades.html", trades=trades, ports=_ports())

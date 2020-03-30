@@ -2,6 +2,7 @@ from src.model.model import Model
 from src.common.result import Result
 from datetime import datetime
 from bson.objectid import ObjectId
+from src.common.exception import AppError
 
 class Trade(Model):
     """ buying or selling a stock or option """
@@ -36,31 +37,27 @@ class Trade(Model):
             raw.trade['_id'] = ObjectId()
             raw.trade['raw_id'] = raw._id 
             raw.trade['port'] = raw.port
-            raw.date = datetime.strptime(raw.trade['TradeDate'], "%Y%m%d")
-            raw.bos = raw.trade['Buy/Sell']
-            raw.quantity = int(raw.trade['Quantity'])
-            raw.symbol = raw.trade['Symbol']
-            raw.stock = _parse(raw.trade['Symbol'])
-            raw.expiry = datetime.strptime(raw.trade['Expiry'], "%d/%m/%Y") if raw.trade['Expiry'] else None
-            raw.strike = float(raw.trade['Strike']) if raw.trade['Strike'] else None
-            raw.poc = raw.trade['Put/Call'] if raw.trade['Put/Call'] else None
-            raw.price = float(raw.trade['TradePrice'])
-            raw.proceeds = float(raw.trade['Proceeds'])
-            raw.commission = float(raw.trade['IBCommission'])
-            raw.cash = float(raw.trade['NetCash'])
-            raw.asset = raw.trade['AssetClass']
-            raw.ooc = raw.trade['Open/CloseIndicator']
-            raw.multiplier = int(raw.trade['Multiplier'])
-            raw.notes = raw.trade['Notes/Codes\n']
-            if raw.notes and raw.notes[-1] == '\n': raw.notes = raw.notes[0:-1]
+            raw.trade['date'] = datetime.strptime(raw.trade['TradeDate'], "%Y%m%d")
+            raw.trade['bos'] = raw.trade['Buy/Sell']
+            raw.trade['quantity'] = int(raw.trade['Quantity'])
+            raw.trade['symbol'] = raw.trade['Symbol']
+            raw.trade['stock'] = _parse(raw.trade['Symbol'])
+            raw.trade['expiry'] = datetime.strptime(raw.trade['Expiry'], "%d/%m/%Y") if raw.trade['Expiry'] else None
+            raw.trade['strike'] = float(raw.trade['Strike']) if raw.trade['Strike'] else None
+            raw.trade['poc'] = raw.trade['Put/Call'] if raw.trade['Put/Call'] else None
+            raw.trade['price'] = float(raw.trade['TradePrice'])
+            raw.trade['proceeds'] = float(raw.trade['Proceeds'])
+            raw.trade['commission'] = float(raw.trade['IBCommission'])
+            raw.trade['cash'] = float(raw.trade['NetCash'])
+            raw.trade['asset'] = raw.trade['AssetClass']
+            raw.trade['ooc'] = raw.trade['Open/CloseIndicator']
+            raw.trade['multiplier'] = int(raw.trade['Multiplier'])
+            raw.trade['notes'] = raw.trade['Notes/Codes\n']
+            if raw.trade['notes'] and raw.trade['notes'][-1] == '\n': raw.notes = raw.notes[0:-1]
         except Exception as e:
-            return Result(success=False, message=str(e), severity='ERROR')
-
-        trade = cls(raw.trade)
-        return trade.create()
-
-    def __str__(self):
-        return str(vars(self))
+            raise AppError(e)
+        else:
+            return cls(raw.trade).create()
 
         
 # Private functions
