@@ -33,7 +33,10 @@ print(f" * Succesfully connected to the {app.config['ENV']} database *")
 
 @app.template_filter('ftime')
 def _format_date(date):
-    return datetime.strftime(date, "%d/%m/%Y")
+    try:
+        return datetime.strftime(date, "%d/%m/%Y")
+    except:
+        return " "
 
 @app.template_filter('ffloat')
 def _format_float(num):

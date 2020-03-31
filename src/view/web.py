@@ -81,12 +81,17 @@ def commit():
 @web.route('/port/<port>')
 def port(port):
     """ List the stocks in this port """
+    global reverse
+    sortby = request.args.get('sortby') if request.args.get('sortby') else 'stock'
+
     result = Log.get_stocks(port)
     if not result.success:
         flash(result.message, result.severity)
         result.message = []
     
-    return render_template("stocks.html", stocks=result.message)
+    stocks = sorted(result.message, key=lambda i: i[sortby], reverse=reverse)
+    reverse = not reverse
+    return render_template("stocks.html", port=port, stocks=stocks)
 
 @web.route('/port/<port>/<stock>')
 def stock(port, stock):

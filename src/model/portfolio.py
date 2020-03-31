@@ -1,7 +1,6 @@
 from src.model.model import Model
 from src.model.trade import Trade
 from src.model.stock import Stock
-from src.common.result import Result
 from bson.objectid import ObjectId
 from src.common.exception import AppError
 
@@ -49,40 +48,27 @@ class Portfolio(Model):
         # Does the stock exist in this portfolio
         if trade.stock in self.stocks: # Yes
             stock = Stock.get(port=self.name, stock=trade.stock)
-            msg = stock.add(trade)
         else: # This trade represents a new stock to this portfolio
             stock = Stock.new(trade)
             self.stocks.append(stock.stock)
             self.update({'stocks': self.stocks})
-            msg = "OPENED"
 
-        # # If this trade closes the position then update portfolio totals
-        # if msg == 'CLOSED':
-        #     self.proceeds += result.message.proceeds 
-        #     self.commission += result.message.commission
-        #     self.cash += result.message.cash
-        #     self.update()
+        msg, position = stock.add(trade)
 
-        pre = f"By {trade.bos}ING {trade.quantity} {trade.stock} {trade.asset} for {trade.proceeds} this trade was "
+        # If this trade closes the position then update portfolio totals
+        if msg == 'CLOSED':
+            self.proceeds += position.proceeds 
+            self.commission += position.commission
+            self.cash += position.cash
+            self.update()
 
-        return pre+msg  # return a message about the committed trade
+        return f"By {trade.bos}ING {trade.quantity} {trade.stock} {trade.asset} for \
+                {trade.proceeds} this trade was " + msg
 
-    # def get_stocks(self):
-    #     return [Stock.get(id).message for id in self.stocks]
+    def get_stocks(self):
+        return [Stock.get(self.name, stock) for stock in self.stocks]
 
-    def get_open_positions(self, stock_name):
-        stock = self._get_stock(stock_name)
-        return Result(success=True, message=(stock.get_open_positions()))
-
-    def get_closed_positions(self, stock_name):
-        stock = self._get_stock(stock_name)
-        return Result(success=True, message=(stock.get_closed_positions()))
-
-
-    # Private functions
-
-    def _get_stock(self, stock):
-        search = [Stock.get(id) for id in self.stocks if Stock.get(id).message.stock == stock]
-        if search and search[0].success: return search[0].message
+    def get_stock(self, stock):
+        if stock in self.stocks: return Stock.get(self.name, stock)
         return None
 

@@ -1,5 +1,4 @@
 from src.model.model import Model
-from src.common.result import Result
 from datetime import datetime
 from bson.objectid import ObjectId
 from src.common.exception import AppError
@@ -52,8 +51,7 @@ class Trade(Model):
             raw.trade['asset'] = raw.trade['AssetClass']
             raw.trade['ooc'] = raw.trade['Open/CloseIndicator']
             raw.trade['multiplier'] = int(raw.trade['Multiplier'])
-            raw.trade['notes'] = raw.trade['Notes/Codes\n']
-            if raw.trade['notes'] and raw.trade['notes'][-1] == '\n': raw.notes = raw.notes[0:-1]
+            raw.trade['notes'] = raw.trade['Notes/Codes\n'][:-1]
         except Exception as e:
             raise AppError(e)
         else:

@@ -6,6 +6,7 @@
 # 3. process here
 
 from src.model.portfolio import Portfolio
+from src.model.stock import Stock
 from src.model.position import Position
 from src.model.trade import Trade
 from src.common.result import Result
@@ -81,26 +82,49 @@ class Log:
 
     @staticmethod
     def get_stocks(port: str):
-        result = Portfolio.get(port)
-        if not result.success: return result
-        portfolio = result.message
-        return Result(True, portfolio.get_stocks())
+        try:
+            stocks = Portfolio.get(port).get_stocks()
+        except AppError as e:
+            return Result(success=False, message=e, severity='WARNING')
+        else:
+            results = [{'stock': stock.stock, 
+                        'positions': len(stock.open)+len(stock.closed), 
+                        'open': len(stock.open), 
+                        'closed': len(stock.closed)} for stock in stocks]
+        return Result(True, results)
 
     @staticmethod
     def get_open_positions(port: str, stock: str):
-        result = Portfolio.get(port)
-        if not result.success: return result
-        return result.message.get_open_positions(stock)
+        try:
+            positions = Position.read({'port': port, 'stock': stock, 'closed': False}, many=True)
+        except AppError as e:
+            return Result(success=False, message=e)
+        else:
+            return Result(success=True, message=positions)
 
     @staticmethod
     def get_closed_positions(port: str, stock: str):
-        result = Portfolio.get(port)
-        if not result.success: return result
-        return result.message.get_closed_positions(stock)
+        try:
+            positions = Position.read({'port': port, 'stock': stock, 'closed': {'$ne': False}}, many=True)
+        except AppError as e:
+            return Result(success=False, message=e)
+        else:
+            return Result(success=True, message=positions)
 
-    # @staticmethod
-    # def get_trades(_id):
-    #     result = Position.get(_id)
-    #     if not result.success: return result
-    #     trades = [Trade.get(trade).message for trade in result.message.trades]
-    #     return Result(success=True, message=trades)
+    @staticmethod
+    def get_positions(port:str, stock:str):
+        try:
+            positions = Position.read({'port': port, 'stock': stock}, many=True)
+        except AppError as e:
+            return Result(success=False, message=e)
+        else:
+            return Result(success=True, message=positions)
+
+    @staticmethod
+    def get_trades(_id: str):
+        try:
+            trades = [Trade.get(trade) for trade in Position.get(_id).trades]
+        except AppError as e:
+            return Result(success=False, message=e)
+        else:
+            return Result(success=True, message=trades)

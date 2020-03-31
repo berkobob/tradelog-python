@@ -1,6 +1,5 @@
 from src.model.model import Model
 from src.model.position import Position
-from src.common.result import Result
 from bson.objectid import ObjectId
 
 class Stock(Model):
@@ -39,7 +38,8 @@ class Stock(Model):
     def add(self, trade):
         """ Add this trade to a new or existing position """
         if trade.symbol in self.open: # Symbol has a position already e.g stock, option etc
-            position = Position.get(trade.port, trade.symbol)
+            position = Position.find(trade.port, trade.symbol)
+            assert position
             position.add(trade)
             result = "CHANGED"
         else: # There are no positions on this symbol yet
@@ -56,17 +56,4 @@ class Stock(Model):
             result = "CLOSED"
 
         self.update()
-        return result
-
-    def is_flat(self):
-        return self.open
-
-    # def get_open_positions(self):
-    #     return [Position.get(id) for id in self.open]
-
-    # def get_closed_positions(self):
-    #     return [Position.get(id) for id in self.closed]
-
-    # def get_positions(self):
-    #     positions = self.open + self.closed
-    #     return [Position.get(id) for id in positions]
+        return result, position

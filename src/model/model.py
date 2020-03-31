@@ -7,6 +7,7 @@ class Model:
 
     def create(self):
         """ Save a copy of the class in the DB, add the _id and return the object """
+        print(f"Creating a {self.collection}\n{vars(self)}")
         DB.create(self.collection, vars(self))
         return self
 

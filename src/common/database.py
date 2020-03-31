@@ -1,5 +1,4 @@
 from pymongo import MongoClient, cursor
-from src.common.result import Result
 from src.common.exception import AppError
 
 class DB:
@@ -8,13 +7,12 @@ class DB:
     Should only deal with database errors and not application errors
     """
     db = []
-    # return Result(success=False, message='Panic!', severity='ERROR')
 
     @classmethod
-    def connect(cls, URL: str, env: str) -> Result:
+    def connect(cls, URL: str, env: str):
         """
-        Connects to the mongo database using the URL from environment 
-        variables and the database from the environment. Returns a Result
+        Connects to the mongo database using the URL from environment
+        variables and the database from the environment.
         """
         try:
             cls.db = MongoClient(URL, connectTimeoutMS=30000, 
@@ -24,9 +22,9 @@ class DB:
             raise AppError(e, 'ERROR')
 
     @classmethod
-    def create(cls, collection: str, record: str) -> Result:
+    def create(cls, collection: str, record: str):
         """
-        Insert a new record into the passed collection and return a Result
+        Insert a new record into the passed collection
         """
         try:
             result = cls.db[collection].insert_one(record)

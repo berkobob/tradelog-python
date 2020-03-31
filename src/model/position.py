@@ -1,10 +1,10 @@
 from src.model.model import Model
-from src.common.result import Result
 from bson.objectid import ObjectId
 
 class Position(Model):
     """
     Represents a series of trades until flat
+    There can be only one position in a stock's open list with a specific symbol
     """
     collection = "position"
 
@@ -42,8 +42,8 @@ class Position(Model):
         }).create()
 
     @classmethod
-    def get(cls, port, symbol):
-        """ Override model's get to use the stock name instead of _id """
+    def find(cls, port, symbol):
+        """ Find a position on this symbol for this port """
         return cls.read({'port': port, 'symbol': symbol})
 
     def add(self, trade):
@@ -57,3 +57,4 @@ class Position(Model):
             self.days = (self.closed - self.open).days
             self.rate = self.proceeds / self.days
         return self.update()
+
