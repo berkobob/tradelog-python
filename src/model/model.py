@@ -7,7 +7,6 @@ class Model:
 
     def create(self):
         """ Save a copy of the class in the DB, add the _id and return the object """
-        print(f"Creating a {self.collection}\n{vars(self)}")
         DB.create(self.collection, vars(self))
         return self
 
@@ -22,7 +21,9 @@ class Model:
 
     @classmethod
     def get(cls, _id):
-        return cls(DB.read_one(cls.collection, {'_id': ObjectId(_id)}))
+        result = DB.read_one(cls.collection, {'_id': ObjectId(_id)})
+        if result: return cls(result)
+        return None
         
     def update(self, values=None):
         if not values: values = vars(self)

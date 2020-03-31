@@ -9,9 +9,9 @@ from src.model.portfolio import Portfolio
 from src.model.stock import Stock
 from src.model.position import Position
 from src.model.trade import Trade
+from src.model.raw import Raw
 from src.common.result import Result
 from src.common.exception import AppError
-from src.model.raw import Raw
 
 class Log:
 
@@ -21,9 +21,9 @@ class Log:
         try:
             portfolios = Portfolio.read({}, many=True)
         except AppError as e:
-            return Result(success=False, message=e.message, severity=e.severity)
+            return Result(success=False, message="log.get_port_names: "+e.message, severity=e.severity)
         else:
-            names = [port.name for port in portfolios]
+            names = [portfolio.name for portfolio in portfolios]
             return Result(success=True, message=names)
 
     @staticmethod
@@ -32,22 +32,22 @@ class Log:
         try:
             message = Portfolio.new(port)
         except AppError as e:
-            return Result(success=False, message=e.message, severity=e.severity)
+            return Result(success=False, message="create_portfolio: "+e.message, severity=e.severity)
         else:
             return Result(success=True, message=message)
 
     @staticmethod
-    def load_trades_from(filename) -> Result:
+    def load_trades_from(filename: str) -> Result:
         """ For each row in the file create a raw trade and return the count """
         count = 0
         try:
             with open(filename) as file:
                 headers = file.readline().split(',')
-                for row in file:
+                for row in file: # Assuming all .csv data is valid
                     Raw.new(dict(zip(headers, row.split(','))))
                     count += 1
         except Exception as e:
-            return Result(success=False, message=str(e), severity='ERROR')
+            return Result(success=False, message="log.load_trades_from: "+str(e), severity='ERROR')
         return Result(success=True, message=count, severity='SUCCESS')
 
     @staticmethod
@@ -56,7 +56,7 @@ class Log:
         try:
             raw_trades = Raw.read({'port': None}, many=True)
         except AppError as e:
-            return Result(success=False, message=e, severity='ERROR')
+            return Result(success=False, message="log.get_raw_trades: "+e, severity='ERROR')
         else:
             return Result(success=True, message=raw_trades)
 
@@ -71,27 +71,48 @@ class Log:
                         "WARNING")
 
         # Get the raw trade to be processed by its _id
-        raw_trade = Raw.get(_id_str)
-        assert raw_trade
+        try:
+            raw_trade = Raw.get(_id_str)
+            assert raw_trade
+        except AppError as e:
+            return Result(success=False, message="log.commit_raw_trade: "+str(e), severity="ERROR")
+        except AssertionError:
+            return Result(success=False, 
+                          message=f"log.commit_raw_trade: Raw trade with id {_id_str} not found",
+                          severity='ERROR')
 
         # Get the portfolio to which this trade belongs by the port name
-        portfolio = Portfolio.get(port)
-        assert portfolio
+        try: 
+            portfolio = Portfolio.get(port)
+            assert portfolio
+        except AppError as e:
+            return Result(success=False, message="log.commit_raw_trade: "+str(e), severity='ERROR')
+        except AssertionError:
+            return Result(success=False, 
+                          message=f"log.commit_raw_trade: Portfolio {port} not found",
+                          severity='ERROR')
 
-        return Result(success=True, message=portfolio.commit(raw_trade))
+        try:
+            message = portfolio.commit(raw_trade)
+        except AppError as e:
+            return Result(success=False, message="log.commit_raw_trade: "+str(e), severity='ERROR')
+
+        return Result(success=True, message=message, severity='SUCCESS')
 
     @staticmethod
     def get_stocks(port: str):
+        """ Return a list of stock traded in this portfolio """
         try:
-            stocks = Portfolio.get(port).get_stocks()
+            stocks = Stock.read({'port': port}, many=True)
         except AppError as e:
-            return Result(success=False, message=e, severity='WARNING')
+            result = Result(success=False, message=e, severity='WARNING')
         else:
-            results = [{'stock': stock.stock, 
+            result = Result(success=True,
+                            message = [{'stock': stock.stock, 
                         'positions': len(stock.open)+len(stock.closed), 
                         'open': len(stock.open), 
-                        'closed': len(stock.closed)} for stock in stocks]
-        return Result(True, results)
+                        'closed': len(stock.closed)} for stock in stocks])
+        return result
 
     @staticmethod
     def get_open_positions(port: str, stock: str):
@@ -121,9 +142,9 @@ class Log:
             return Result(success=True, message=positions)
 
     @staticmethod
-    def get_trades(_id: str):
+    def get_trades(pos_id: str):
         try:
-            trades = [Trade.get(trade) for trade in Position.get(_id).trades]
+            trades = [Trade.get(trade) for trade in Position.get(pos_id).trades]
         except AppError as e:
             return Result(success=False, message=e)
         else:

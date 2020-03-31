@@ -2,9 +2,9 @@
 {% block content %}
 <div class="w3-container w3-responsive">
     {% if open[0] %}
-        <h3><a href="/port/{{open[0].port}}">{{open[0].port}}</a>/{{open[0].stock}}</h3>
+        <h3><a href="/port/{{open[0].port}}">{{open[0].port}}</a>/{{open[0].stock}}/Positions</h3>
     {% else %}
-        <h3><a href="/port/{{closed[0].port}}">{{closed[0].port}}</a>/{{closed[0].stock}}</h3>
+        <h3><a href="/port/{{closed[0].port}}">{{closed[0].port}}</a>/{{closed[0].stock}}/Positions</h3>
     {% endif %}
     <table class="w3-table">
         {% if open[0] %}

@@ -47,7 +47,7 @@ class DB:
         try:
             documents = cls.db[collection].find(query)
         except Exception as e:
-            raise AppError(e)
+            raise AppError("DB.read_many: "+str(e))
         else:
             return documents
 
