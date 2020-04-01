@@ -4,9 +4,7 @@ scratch.py
 .vscode
 .ds_store
 *.csv
+*.svg
 config/
 __pycache__/
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+bar_chart.svg

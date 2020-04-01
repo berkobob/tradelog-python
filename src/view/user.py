@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, render_template, flash
 from flask import redirect, request
 from flask_login import login_user, logout_user
 from src.model.user import User
@@ -10,7 +10,7 @@ client = None
 
 @user.route('/')
 def hold():
-    return('<a href="/user/login">Login</a>')
+    return render_template('login.html')
 
 @user.route('/login')
 def login():
@@ -58,23 +58,24 @@ def callback():
 
     if userinfo_response.json().get('email_verified'):
         unique_id = userinfo_response.json()["sub"]
-        users_email = userinfo_response.json()["email"]
-        picture = userinfo_response.json()["picture"]
+        # users_email = userinfo_response.json()["email"]
+        # picture = userinfo_response.json()["picture"]
         users_name = userinfo_response.json()["given_name"]
     else:
         return "User email not available or not verified by Google.", 400
 
-    result = User.get(unique_id)
-    if result.success:
-        login_user(result.message)
+    if User.get(unique_id):
+        login_user(User.get(unique_id))
+        flash (f'Logon successful. Welcome back {users_name}', 'SUCCESS')
         return redirect('/')
-
-    return "Invalid login credentials"
+    else: 
+        flash('Invalid credentials! You are not logged in.', 'WARNING')
+        return render_template('login.html')
 
 @user.route('/logout')
 def logout():
     logout_user()
-    return("<p>You are logged out</p>")
+    return render_template("login.html")
 
 @user.route('/me')
 def temp():
