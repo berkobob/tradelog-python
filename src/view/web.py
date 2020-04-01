@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, redirect
 from flask_login import current_user, login_required
 from src.controller.tradelog import Log
+import pygal
 
 web = Blueprint('web', __name__)
 reverse = False
@@ -9,7 +10,11 @@ reverse = False
 def home():
     """ Render the home page """
     if current_user.is_authenticated:
-        return render_template('home.html', ports=_ports())
+        bar_chart = pygal.Bar()                                            # Then create a bar graph object
+        bar_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
+        bar_chart.render_to_file('bar_chart.svg') 
+        chart = bar_chart.render_data_uri()
+        return render_template('home.html', ports=_ports(), chart=chart)
     else:
         return redirect('/user')
 

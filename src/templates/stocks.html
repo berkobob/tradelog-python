@@ -5,17 +5,17 @@
     {% if stocks[0] %}
         <table class="w3-table">
             <tr>
-                <th><a href="/port/{{ port }}?sortby=stock">STOCK</a></th>
-                <th class="w3-center"><a href="/port/{{ port }}?sortby=positions">POSITIONS</a></th>
-                <th class="w3-center"><a href="/port/{{ port }}?sortby=open">OPEN</a></th>
-                <th class="w3-center"><a href="/port/{{ port }}?sortby=closed">CLOSED</a></th>
+                <th><a class="w3-button" href="/port/{{ port }}?sortby=stock">STOCK</a></th>
+                <th class="w3-center"><a class="w3-button" href="/port/{{ port }}?sortby=positions">POSITIONS</a></th>
+                <th class="w3-center"><a class="w3-button" href="/port/{{ port }}?sortby=open">OPEN</a></th>
+                <th class="w3-center"><a class="w3-button" href="/port/{{ port }}?sortby=closed">CLOSED</a></th>
             </tr>
             {% for stock in stocks %}
             <tr>
-                <td><a href="/port/{{ port }}/{{stock['stock']}}">{{stock.stock}}</a></td>
+                <td><a class="w3-button"  href="/port/{{ port }}/{{stock['stock']}}">{{stock.stock}}</a></td>
                 <td class="w3-center">{{ stock['positions'] }}</td>
-                <td class="w3-center"><a href="/port/{{ port }}/{{stock['stock']}}/open">{{stock.open}}</a></td>
-                <td class="w3-center"><a href="/port/{{ port }}/{{stock['stock']}}/closed">{{stock.closed}}</a></td>
+                <td class="w3-center"><a class="w3-button" href="/port/{{ port }}/{{stock['stock']}}/open">{{stock.open}}</a></td>
+                <td class="w3-center"><a class="w3-button" href="/port/{{ port }}/{{stock['stock']}}/closed">{{stock.closed}}</a></td>
             </tr>
             {% endfor %}
         </table>
