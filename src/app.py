@@ -41,4 +41,5 @@ def _format_date(date):
 @app.template_filter('ffloat')
 def _format_float(num):
     # return '{:{width}.{prec}f}'.format(num, width=5, prec=2)
-    return '{:6.2f}'.format(num)
+    if num: return '${:,.2f}'.format(num)
+    return ""

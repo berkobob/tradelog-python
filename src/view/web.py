@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, redirect
 from flask_login import current_user, login_required
 from src.controller.tradelog import Log
-import pygal
+import pygal, operator
 
 web = Blueprint('web', __name__)
 reverse = False
@@ -95,23 +95,28 @@ def port(port):
         flash(result.message, result.severity)
         result.message = []
     
-    stocks = sorted(result.message, key=lambda i: i[sortby], reverse=reverse)
-    reverse = not reverse
+    # stocks = sorted(result.message, key=lambda i: i[sortby], reverse=reverse)
+    stocks = _sort(result.message, sortby)
     return render_template("stocks.html", port=port, stocks=stocks)
 
 @web.route('/port/<port>/<stock>')
 @login_required
 def stock(port, stock):
     """ List the positions in this stock in this port """
+    sortby = request.args.get('sortby') or 'asset'
+    what = request.args.get('what')
+
     open = Log.get_open_positions(port, stock)
     if not open.success: 
         flash(open.message, open.severity)
         open.message=[]
     if not open.message: flash("There are no open positions", "WARNING")
+    elif what == 'open': open.message = _sort(open.message, sortby)
     closed = Log.get_closed_positions(port, stock)
     if not closed.success: 
         flash(closed.message, closed.severity)
         closed.message=[]
+    elif what == 'closed': closed.message = _sort(closed.message, sortby)
     if not closed.message: flash("There are no closed positions", "WARNING")
     return render_template("positions.html", open=open.message, closed=closed.message)
 
@@ -119,24 +124,30 @@ def stock(port, stock):
 @login_required
 def open(port, stock):
     """ List the open positions and trades """
-    return f"list open {stock} positions in {port}"
+    sortby = request.args.get('sortby')
+    result = Log.get_open_positions(port=port, stock=stock)
+    if not result.success:
+        flash(result.message, result.severity)
+        result.message = []
+    return render_template('open.html', open=_sort(result.message, sortby))
 
 @web.route('/port/<port>/<stock>/closed')
 @login_required
 def closed(port, stock):
     """ List closed positions and trades """
+    sortby = request.args.get('sortby')
     result = Log.get_closed_positions(port=port, stock=stock)
     if not result.success:
         flash(result.message, result.severity)
         result.message = []
-    return render_template('closed.html', closed=result.message)
+    return render_template('closed.html', closed=_sort(result.message, sortby))
 
 @web.route('/position/<_id>')
 @login_required
 def position(_id):
     result = Log.get_trades(_id)
     if not result.success: flash(result.message, result.severity)
-    return render_template("trades.html", position=result.message)
+    return render_template("trades.html", position=result.message, asset=result.severity)
 
 
 # private functions
@@ -152,3 +163,11 @@ def _ports():
     ports = result.message
     return ports
 
+def _sort(items, sortby):
+    global reverse 
+    reverse = not reverse
+    if sortby:
+        if type(items[0]) == dict: 
+            return sorted(items, key=lambda i: i[sortby], reverse=reverse)
+        return sorted(items, key=operator.attrgetter(sortby), reverse=reverse)
+    return items

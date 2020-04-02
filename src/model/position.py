@@ -22,6 +22,7 @@ class Position(Model):
         self.cash = position['cash']
         self.days = position['days']
         self.rate = position['rate']
+        self.asset = position['asset']
 
     @classmethod
     def new(cls, trade):
@@ -38,7 +39,8 @@ class Position(Model):
             'proceeds': trade.proceeds,
             'cash': trade.cash,
             'days': 0,
-            'rate': 0.0
+            'rate': 0.0,
+            'asset': cls._asset(trade)
         }).create()
 
     @classmethod
@@ -56,5 +58,15 @@ class Position(Model):
             self.closed = trade.date
             self.days = (self.closed - self.open).days
             self.rate = self.proceeds / self.days
+        if self.closed < self.open: self.asset = self._asset(trade)
         return self.update()
 
+    @staticmethod
+    def _asset(trade):
+        los = "Long" if trade.quantity > 0 else "Short"
+        if trade.asset == 'STK': name = f'{los} {trade.symbol} shares'
+        else:
+            expiry = trade.expiry.strftime("%b %y")
+            strike = "${:,.2f}".format(trade.strike)
+            name = f"{los} {expiry}, {strike} {trade.poc}"
+        return name

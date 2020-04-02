@@ -12,6 +12,7 @@ from src.model.trade import Trade
 from src.model.raw import Raw
 from src.common.result import Result
 from src.common.exception import AppError
+from datetime import datetime
 
 class Log:
 
@@ -111,7 +112,11 @@ class Log:
                             message = [{'stock': stock.stock, 
                         'positions': len(stock.open)+len(stock.closed), 
                         'open': len(stock.open), 
-                        'closed': len(stock.closed)} for stock in stocks])
+                        'closed': len(stock.closed),
+                        'proceeds': stock.proceeds,
+                        'commission': stock.commission,
+                        'cash': stock.cash
+                        } for stock in stocks])
         return result
 
     @staticmethod
@@ -121,6 +126,9 @@ class Log:
         except AppError as e:
             return Result(success=False, message=e)
         else:
+            for position in positions:
+                position.trades = len(position.trades)
+                position.days = (datetime.now()-position.open).days
             return Result(success=True, message=positions)
 
     @staticmethod
@@ -130,6 +138,8 @@ class Log:
         except AppError as e:
             return Result(success=False, message=e)
         else:
+            for position in positions:
+                position.trades = len(position.trades)
             return Result(success=True, message=positions)
 
     @staticmethod
@@ -144,8 +154,9 @@ class Log:
     @staticmethod
     def get_trades(pos_id: str):
         try:
-            trades = [Trade.get(trade) for trade in Position.get(pos_id).trades]
+            position = Position.get(pos_id)
+            trades = [Trade.get(trade) for trade in position.trades]
         except AppError as e:
             return Result(success=False, message=e)
         else:
-            return Result(success=True, message=trades)
+            return Result(success=True, message=trades, severity=position.asset)

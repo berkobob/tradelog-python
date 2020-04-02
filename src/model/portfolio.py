@@ -48,6 +48,7 @@ class Portfolio(Model):
         # Does the stock exist in this portfolio
         if trade.stock in self.stocks: # Yes
             stock = Stock.get(port=self.name, stock=trade.stock)
+            assert stock
         else: # This trade represents a new stock to this portfolio
             stock = Stock.new(trade)
             self.stocks.append(stock.stock)
@@ -56,7 +57,7 @@ class Portfolio(Model):
         msg, position = stock.add(trade)
 
         # If this trade closes the position then update portfolio totals
-        if msg == 'CLOSED':
+        if position.closed:
             self.proceeds += position.proceeds 
             self.commission += position.commission
             self.cash += position.cash
@@ -65,10 +66,10 @@ class Portfolio(Model):
         return f"By {trade.bos}ING {trade.quantity} {trade.stock} {trade.asset} for \
                 {trade.proceeds} this trade was " + msg
 
-    def get_stocks(self):
-        return [Stock.get(self.name, stock) for stock in self.stocks]
+    # def get_stocks(self):
+    #     return [Stock.get(self.name, stock) for stock in self.stocks]
 
-    def get_stock(self, stock):
-        if stock in self.stocks: return Stock.get(self.name, stock)
-        return None
+    # def get_stock(self, stock):
+    #     if stock in self.stocks: return Stock.get(self.name, stock)
+    #     return None
 

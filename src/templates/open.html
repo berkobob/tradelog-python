@@ -1,44 +1,41 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="w3-container w3-responsive">
-    <h3><a href="/port/{{closed[0].port}}">{{closed[0].port}}</a>/<a href="/port/{{closed[0].port}}/{{closed[0].stock}}">{{closed[0].stock}}</a>/Closed</h3>
+    <h3><a href="/port/{{open[0].port}}">{{open[0].port}}</a>/<a href="/port/{{open[0].port}}/{{open[0].stock}}">{{open[0].stock}}</a>/Open</h3>
     <table class="w3-table w3-hoverable">
         <thead>
         <tr>
-            <th class="w3-left-align"><a href="{{ request.path }}?sortby=asset" >ASSET</a></th>
+            <th class="w3-left-align"><a href="{{ request.path }}?sortby=asset">ASSET</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=open">OPEN</a></th>
-            <th class="w3-center"><a href="{{ request.path }}?sortby=closed">CLOSED</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=trades">TRADES</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=proceeds">PROCEEDS</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=commission">COMMISSION</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=cash">CASH</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=days">DAYS</a></th>
-            <th class="w3-right-align"><a href="{{ request.path }}?sortby=rate">RATE</a></th>
+            <th class="w3-right-align"><a href="{{ request.path }}?sortby=risk">RISK</a></th>
         </tr>
         </thead>
-        {% for pos in closed %}
+        {% for pos in open %}
             <tr onClick="window.location='/position/{{pos._id}}';">
                 <td class="w3-left-align">{{pos.asset}}</td>
                 <td class="w3-center">{{pos.open|ftime}}</td>
-                <td class="w3-center">{{pos.closed|ftime}}</td>
                 <td class="w3-center">{{pos.trades}}</td>
                 <td class="w3-right-align">{{pos.proceeds|ffloat}}</td>
                 <td class="w3-right-align">{{pos.commission|ffloat}}</td>
                 <td class="w3-right-align">{{pos.cash|ffloat}}</td>
                 <td class="w3-center">{{pos.days}}</td>
-                <td class="w3-right-align">{{pos.rate|ffloat}}</td>
+                <td class="w3-right-align">TBA</td>
             </tr>
         {% endfor %}
         <thead>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="w3-center"><b>{{ closed|sum(attribute='trades') }}</b></td>
-            <td class="w3-right-align"><b>{{ closed|sum(attribute='proceeds')|ffloat }}</b></td>
-            <td class="w3-right-align"><b>{{ closed|sum(attribute='commission')|ffloat }}</b></td>
-            <td class="w3-right-align"><b>{{ closed|sum(attribute='cash')|ffloat }}</b></td>
-        </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td class="w3-center"><b>{{ open|sum(attribute='trades') }}</b></td>
+                <td class="w3-right-align"><b>{{ open|sum(attribute='proceeds')|ffloat }}</b></td>
+                <td class="w3-right-align"><b>{{ open|sum(attribute='commission')|ffloat }}</b></td>
+                <td class="w3-right-align"><b>{{ open|sum(attribute='cash')|ffloat }}</b></td>
+            </tr>
         </thead>
     </table>
 </div>
