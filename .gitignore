@@ -7,4 +7,4 @@ scratch.py
 *.svg
 config/
 __pycache__/
-bar_chart.svg
+bar_chart*

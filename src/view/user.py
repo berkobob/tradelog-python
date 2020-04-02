@@ -81,10 +81,12 @@ def logout():
 def temp():
     email = request.args.get('email')
     name = request.args.get('name')
-    result = User.me(email, name)
-    if result.success:
-        if result.message:
-            login_user(result.message)
-            return "You're logged in ", result.message.name
-    return "Invalid credentials"
+    user = User.me(email, name)
+    if user:
+        login_user(user)
+        flash (f'Logon successful. Welcome back {user.name}', 'SUCCESS')
+        return redirect('/')
+
+    flash('Invalid credentials! You are not logged in.', 'WARNING')
+    return render_template('login.html')
 

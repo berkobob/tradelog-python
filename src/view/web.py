@@ -84,6 +84,7 @@ def commit():
     return render_template("raw_trades.html", trades=trades, ports=_ports())
 
 @web.route('/port/<port>')
+@login_required
 def port(port):
     """ List the stocks in this port """
     global reverse
@@ -99,6 +100,7 @@ def port(port):
     return render_template("stocks.html", port=port, stocks=stocks)
 
 @web.route('/port/<port>/<stock>')
+@login_required
 def stock(port, stock):
     """ List the positions in this stock in this port """
     open = Log.get_open_positions(port, stock)
@@ -114,11 +116,13 @@ def stock(port, stock):
     return render_template("positions.html", open=open.message, closed=closed.message)
 
 @web.route('/port/<port>/<stock>/open')
+@login_required
 def open(port, stock):
     """ List the open positions and trades """
     return f"list open {stock} positions in {port}"
 
 @web.route('/port/<port>/<stock>/closed')
+@login_required
 def closed(port, stock):
     """ List closed positions and trades """
     result = Log.get_closed_positions(port=port, stock=stock)
@@ -128,14 +132,11 @@ def closed(port, stock):
     return render_template('closed.html', closed=result.message)
 
 @web.route('/position/<_id>')
+@login_required
 def position(_id):
     result = Log.get_trades(_id)
     if not result.success: flash(result.message, result.severity)
     return render_template("trades.html", position=result.message)
-
-@web.route('/logout')
-def logout():
-    return redirect('/user/logout')
 
 
 # private functions
