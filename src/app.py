@@ -6,6 +6,7 @@ from src.common.database import DB
 from src.model.user import User
 from flask_login import LoginManager
 from datetime import datetime
+import sys
 
 app = Flask(__name__)
 app.register_blueprint(web)
@@ -27,8 +28,13 @@ except:
     app.config['GOOGLE_CLIENT_SECRET'] = environ.get('GOOGLE_CLIENT_SECRET')
     app.config['GOOGLE_DISCOVERY_URL'] = environ.get('GOOGLE_DISCOVERY_URL')
 
-DB.connect(app.config['DB_URL'], app.config['ENV'])
-print(f" * Succesfully connected to the {app.config['ENV']} database *")
+try:
+    DB.connect(app.config['DB_URL'], app.config['ENV'])
+except Exception as e:
+    print('Failed to connect to database\n', e)
+3    sys.exit()
+else:
+    print(f" * Succesfully connected to the {app.config['ENV']} database *")
 
 
 @app.template_filter('ftime')

@@ -33,7 +33,7 @@ class Log:
         try:
             message = Portfolio.new(port)
         except AppError as e:
-            return Result(success=False, message="create_portfolio: "+e.message, severity=e.severity)
+            return Result(success=False, message="create_portfolio: "+str(e), severity=e.severity)
         else:
             return Result(success=True, message=message)
 
