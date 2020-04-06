@@ -49,3 +49,7 @@ def _format_float(num):
     # return '{:{width}.{prec}f}'.format(num, width=5, prec=2)
     if num: return '${:,.2f}'.format(num)
     return ""
+
+@app.template_filter('fpercent')
+def _format_percent(num):
+    return '{:,.2f}%'.format(num*100)

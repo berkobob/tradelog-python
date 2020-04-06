@@ -8,6 +8,7 @@
                 <th class="w3-center"><a href="{{ request.path }}?sortby=stocks">STOCKS</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=positions">POSITIONS</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=open">OPEN</a></th>
+                <th class="w3-center"><a href="{{ request.path }}?sortby=risk">RISK</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=closed">CLOSED</a></th>
                 <th class="w3-right-align"><a href="{{ request.path }}?sortby=proceeds">PROCEEDS</a></th>
                 <th class="w3-right-align"><a href="{{ request.path }}?sortby=commission">COMMISSION</a></th>
@@ -20,6 +21,7 @@
                 <td class="w3-center"><a href="/port/{{ port.name }}">{{ port.stocks }}</a></td>
                 <td class="w3-center"><a href="/positions/{{ port.name }}">{{ port.positions }}</a></td>
                 <td class="w3-center"><a href="/open/{{ port.name }}">{{ port.open }}</a></td>
+                <td class="w3-center">{{ port.risk|ffloat }}</td>
                 <td class="w3-center"><a href="/closed/{{ port.name }}">{{ port.closed }}</a></td>
                 <td class="w3-right-align">{{ port.proceeds|ffloat }}</td>
                 <td class="w3-right-align">{{ port.commission|ffloat }}</td>
@@ -31,6 +33,7 @@
             <td class="w3-center"><b>{{ ports|sum(attribute='stocks') }}</b></td>
             <td class="w3-center"><b>{{ ports|sum(attribute='positions') }}</b></td>
             <td class="w3-center"><b>{{ ports|sum(attribute='open') }}</b></td>
+            <td class="w3-center"><b>{{ ports|sum(attribute='risk')|ffloat }}</b></td>
             <td class="w3-center"><b>{{ ports|sum(attribute='closed') }}</b></td>
             <td class="w3-right-align"><b>{{ ports|sum(attribute='proceeds')|ffloat }}</b></td>
             <td class="w3-right-align"><b>{{ ports|sum(attribute='commission')|ffloat }}</b></td>

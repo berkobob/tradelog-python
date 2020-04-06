@@ -23,6 +23,7 @@ class Position(Model):
         self.days = position['days']
         self.rate = position['rate']
         self.asset = position['asset']
+        self.risk = position['risk']
 
     @classmethod
     def new(cls, trade):
@@ -40,7 +41,8 @@ class Position(Model):
             'cash': trade.cash,
             'days': 0,
             'rate': 0.0,
-            'asset': cls._asset(trade)
+            'asset': cls._asset(trade),
+            'risk': cls._risk(trade)
         }).create()
 
     @classmethod
@@ -55,9 +57,13 @@ class Position(Model):
         self.proceeds += trade.proceeds
         self.cash += trade.cash
         if self.quantity == 0: # Then the position is closed
+            if self.risk == 0: self.risk = self._risk(trade) # closing trade committed first
             self.closed = trade.date
             self.days = (self.closed - self.open).days
             self.rate = self.proceeds / self.days
+            self.risk = self.proceeds / self.risk
+        else:
+            self.risk = self._risk(trade)
         if self.closed < self.open: self.asset = self._asset(trade)
         return self.update()
 
@@ -70,3 +76,11 @@ class Position(Model):
             strike = "${:,.2f}".format(trade.strike)
             name = f"{los} {expiry}, {strike} {trade.poc}"
         return name
+
+    @staticmethod
+    def _risk(trade):
+        if trade.ooc == 'O':
+            if trade.asset == 'STK': risk = trade.proceeds
+            else: risk = trade.strike * trade.multiplier - trade.proceeds
+        else: risk = 0
+        return risk

@@ -20,7 +20,7 @@
                     <select class="w3-select" name="port">
                         <option value="" disabled selected>Select a portfolio</option>
                         {% for port in ports %}
-                            <option value={{port}}>{{ port }}</option>
+                            <option value={{port.name}}>{{ port.name }}</option>
                         {% endfor %}
                     </select>
                 </td>

@@ -94,6 +94,8 @@ def port(port):
     if not result.success:
         flash(result.message, result.severity)
         result.message = []
+    elif not result.message:
+        flash("This portfolio contains no stocks. Commit a trade to get started.", "WARNING")
     
     stocks = _sort(result.message, sortby)
     return render_template("stocks.html", port=port, stocks=stocks)
@@ -104,8 +106,6 @@ def stock(port, stock):
     """ List the positions in this stock in this port """
     sortby = request.args.get('sortby') or 'asset'
     what = request.args.get('what')
-
-    if stock == 'ALL': stock = None
 
     open = Log.get_open_positions(port, stock)
     if not open.success: 
@@ -119,7 +119,8 @@ def stock(port, stock):
         closed.message=[]
     elif what == 'closed': closed.message = _sort(closed.message, sortby)
     if not closed.message: flash("There are no closed positions", "WARNING")
-    return render_template("position.html", open=open.message, closed=closed.message)
+    return render_template("stock.html", open=open.message, closed=closed.message, 
+                            port=port, stock=stock)
 
 @web.route('/port/<port>/<stock>/open')
 @login_required
@@ -130,7 +131,7 @@ def open(port, stock):
     if not result.success:
         flash(result.message, result.severity)
         result.message = []
-    return render_template('open.html', open=_sort(result.message, sortby))
+    return render_template('open.html', open=_sort(result.message, sortby), port=port, stock=stock)
 
 @web.route('/port/<port>/<stock>/closed')
 @login_required
@@ -141,7 +142,8 @@ def closed(port, stock):
     if not result.success:
         flash(result.message, result.severity)
         result.message = []
-    return render_template('closed.html', closed=_sort(result.message, sortby))
+    elif not result.message: flash(f'{stock} has no closed positions', 'WARNING')
+    return render_template('closed.html', closed=_sort(result.message, sortby), port=port, stock=stock)
 
 @web.route('/positions/<port>')
 @login_required
@@ -162,7 +164,7 @@ def positions(port):
         closed.message=[]
     elif what == 'closed': closed.message = _sort(closed.message, sortby)
     if not closed.message: flash("There are no closed positions", "WARNING")
-    return render_template("positions.html", open=open.message, closed=closed.message)
+    return render_template("positions.html", open=open.message, closed=closed.message, port=port)
 
 @web.route('/open/<port>')
 @login_required
@@ -173,20 +175,20 @@ def allopen(port):
     if not open.success: 
         flash(open.message, open.severity)
         open.message=[]
-    if not open.message: flash("There are no open positions", "WARNING")
-    return render_template("all_open.html", open=_sort(open.message, sortby))
+    if not open.message: flash("This portfolio contains no open positions", "WARNING")
+    return render_template("all_open.html", open=_sort(open.message, sortby), port=port)
 
 @web.route('/closed/<port>')
 @login_required
 def allclosed(port):
-    """ List the positions in this port """
+    """ List the closed positions in this portfolio """
     sortby = request.args.get('sortby') or 'asset'
     closed = Log.get_closed_positions(port, None)
     if not closed.success: 
         flash(closed.message, closed.severity)
         closed.message=[]
-    if not closed.message: flash("There are no closed positions", "WARNING")
-    return render_template("all_closed.html", closed=_sort(closed.message, sortby))
+    if not closed.message: flash("This portfolio contains no closed positions", "WARNING")
+    return render_template("all_closed.html", closed=_sort(closed.message, sortby), port=port)
 
 @web.route('/position/<_id>')
 @login_required

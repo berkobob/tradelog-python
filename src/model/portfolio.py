@@ -16,6 +16,7 @@ class Portfolio(Model):
         self.proceeds = port['proceeds']
         self.commission = port['commission']
         self.cash = port['cash']
+        self.risk = port['risk']
 
     @classmethod
     def new(cls, port):
@@ -31,7 +32,8 @@ class Portfolio(Model):
             'stocks': [],
             'proceeds': 0.0,
             'commission': 0.0,
-            'cash': 0.0
+            'cash': 0.0,
+            'risk': 0.0
         }).create()
 
     @classmethod
@@ -70,5 +72,9 @@ class Portfolio(Model):
             self.cash += position.cash
             self.update()
 
-        return f"By {trade.bos}ING {abs(trade.quantity)} {trade.stock} {trade.asset} for \
+        x = f"By {trade.bos}ING {abs(trade.quantity)} {trade.stock} {trade.asset} for \
                 {trade.proceeds} this position was " + msg
+
+        if msg == "closed": return x
+
+        return msg + ". The position has a risk of " + str(position.risk)

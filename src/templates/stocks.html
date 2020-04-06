@@ -28,8 +28,6 @@
                 <td class="w3-right-align"><b>{{ stocks|sum(attribute='proceeds')|ffloat }}</b></td>
             </tr>
         </table>
-    {% else %}
-        <div class="w3-container w3-large"><p>This portfolio contains no stocks</p></div>
     {% endif %}
 </div>
 {% endblock %}

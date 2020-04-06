@@ -1,32 +1,34 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="w3-container w3-responsive">
-    {% if open[0] %}
-        <h3><a href="/port/{{open[0].port}}">{{open[0].port}}</a>/{{open[0].stock}}</h3>
-    {% else %}
-        <h3><a href="/port/{{closed[0].port}}">{{closed[0].port}}</a>/{{closed[0].stock}}</h3>
-    {% endif %}
+    <h3><a href="/port/{{ port }}">{{ port }}</a>/{{ stock }}</h3>
     <table class="w3-table w3-hoverable">
         {% if open[0] %}
         <thead>
-        <tr><td><h4><a href="/port/{{open[0].port}}/{{open[0].stock}}/open">Open</a></h4></td></tr>
+        <tr><td><h4><a href="/port/{{ port }}/{{ stock }}/open">Open</a></h4></td></tr>
             <tr>
-                <th class="w3-left"><a href="{{ request.path }}?sortby=asset&what=open">ASSET</a></th>
+                <th class="w3-left"><a href="{{ request.path }}?sortby=asset&what=open">POSITION</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=open&what=open">OPEN</a></th>
+                <th class="w3-center"><a href="{{ request.path }}?sortby=days&what=open">DAYS</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=trades&what=open">TRADES</a></th>
                 <th class="w3-right-align"><a href="{{ request.path }}?sortby=quantity&what=open">QUANTITY</a></th>
-                <th class="w3-right-align"><a href="{{ request.path }}?sortby=commission&what=open">COMMISSION</a></th>
                 <th class="w3-right-align"><a href="{{ request.path }}?sortby=proceeds&what=open">PROCEEDS</a></th>
+                <th class="w3-right-align"><a href="{{ request.path }}?sortby=commission&what=open">COMMISSION</a></th>
+                <th class="w3-right-align"><a href="{{ request.path }}?sortby=cash&what=open">CASH</a></th>
+                <th class="w3-right-align"><a href="{{ request.path }}?sortby=risk&what=open">RISK</a></th>
             </tr>
         </thead>
             {% for stock in open %}
                 <tr onClick="window.location='/position/{{stock._id}}';">
                     <td class="w3-left">{{ stock.asset }}</td>
                     <td class="w3-center">{{ stock.open|ftime }}</td>
+                    <td class="w3-center">{{ stock.days }}</td>
                     <td class="w3-center">{{ stock.trades }}</td>
                     <td class="w3-right-align">{{ stock.quantity }}</td>
-                    <td class="w3-right-align">{{ stock.commission|ffloat }}</td>
                     <td class="w3-right-align">{{ stock.proceeds|ffloat }}</td>
+                    <td class="w3-right-align">{{ stock.commission|ffloat }}</td>
+                    <td class="w3-right-align">{{ stock.cash|ffloat }}</td>
+                    <td class="w3-right-align">{{ stock.risk|ffloat }}</td>
                 </tr>
             {% endfor %}
             <thead>
@@ -35,41 +37,52 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
                 <td class="w3-right-align"><b>{{ open|sum(attribute='commission')|ffloat }}</b></td>
                 <td class="w3-right-align"><b>{{ open|sum(attribute='cash')|ffloat }}</b></td>
+                <td class="w3-right-align"><b>{{ open|sum(attribute='risk')|ffloat }}</b></td>
             </tr>
             </thead>
         {% endif %}
         {% if closed[0] %}
         <thead>
-        <tr><td><h4><a href="/port/{{closed[0].port}}/{{closed[0].stock}}/closed">Closed</a></h4></td></tr>
+        <tr><td><h4><a href="/port/{{ port }}/{{ stock }}/closed">Closed</a></h4></td></tr>
         <tr>
-            <th class="w3-left"><a href="{{ request.path }}?sortby=asset&what=closed">ASSET</a></th>
+            <th class="w3-left"><a href="{{ request.path }}?sortby=asset&what=closed">POISITION</a></th>
+            <th class="w3-center"><a href="{{ request.path }}?sortby=open&what=closed">OPEN</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=closed&what=closed">CLOSED</a></th>
+            <th class="w3-center"><a href="{{ request.path }}?sortby=days&what=closed">DAYS</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=trades&what=closed">TRADES</a></th>
-            <th class="w3-right-align"><a href="{{ request.path }}?sortby=rate&what=closed">RATE</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=commission&what=closed">COMMISSION</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=proceeds&what=closed">PROCEEDS</a></th>
+            <th class="w3-right-align"><a href="{{ request.path }}?sortby=rate&what=closed">RATE</a></th>
+            <th class="w3-right-align"><a href="{{ request.path }}?sortby=risk&what=closed">RETURN</a></th>
         </tr>
         </thead>
         {% for stock in closed %}
             <tr onClick="window.location='/position/{{stock._id}}';">
                 <td class="w3-left">{{ stock.asset }}</td>
+                <td class="w3-center">{{ stock.open|ftime }}</td>
                 <td class="w3-center">{{ stock.closed|ftime }}</td>
+                <td class="w3-center">{{ stock.days }}</td>
                 <td class="w3-center">{{ stock.trades }}</td>
-                <td class="w3-right-align">{{ stock.rate|ffloat }}</td>
                 <td class="w3-right-align">{{ stock.commission|ffloat }}</td>
                 <td class="w3-right-align">{{ stock.proceeds|ffloat }}</td>
+                <td class="w3-right-align">{{ stock.rate|ffloat }}</td>
+                <td class="w3-right-align">{{ stock.risk|fpercent }}</td>
             </tr>
         {% endfor %}
         <thead>
         <tr>
             <td></td>
             <td></td>
+            <td></td>
+            <td></td>
             <td class="w3-center"><b>{{ (closed|sum(attribute='trades')) }}</b></td>
-            <td class="w3-right-align"><b>{{ (closed|sum(attribute='rate')/closed|length)|ffloat }}</b></td>
             <td class="w3-right-align"><b>{{ closed|sum(attribute='commission')|ffloat }}</b></td>
             <td class="w3-right-align"><b>{{ closed|sum(attribute='cash')|ffloat }}</b></td>
+            <td class="w3-right-align"><b>{{ (closed|sum(attribute='rate')/closed|length)|ffloat }}</b></td>
+            <td></td>
         </tr>
         </thead>
         {% endif %}
