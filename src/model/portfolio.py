@@ -54,7 +54,14 @@ class Portfolio(Model):
             self.stocks.append(stock.stock)
             self.update({'stocks': self.stocks})
 
-        msg, position = stock.add(trade)
+        # Process this trade
+        position = stock.add(trade)
+
+        if len(position.trades) == 0: msg = 'closed'
+        elif len(position.trades) == 1: msg = 'opened'
+        else: msg = 'changed'
+
+        print(len(position.trades))
 
         # If this trade closes the position then update portfolio totals
         if position.closed:
@@ -63,13 +70,5 @@ class Portfolio(Model):
             self.cash += position.cash
             self.update()
 
-        return f"By {trade.bos}ING {trade.quantity} {trade.stock} {trade.asset} for \
-                {trade.proceeds} this trade was " + msg
-
-    # def get_stocks(self):
-    #     return [Stock.get(self.name, stock) for stock in self.stocks]
-
-    # def get_stock(self, stock):
-    #     if stock in self.stocks: return Stock.get(self.name, stock)
-    #     return None
-
+        return f"By {trade.bos}ING {abs(trade.quantity)} {trade.stock} {trade.asset} for \
+                {trade.proceeds} this position was " + msg

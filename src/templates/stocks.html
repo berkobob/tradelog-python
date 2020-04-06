@@ -5,27 +5,27 @@
     {% if stocks[0] %}
         <table class="w3-table">
             <tr>
-                <th class="w3-left-align"><a class="w3-button" href="/port/{{ port }}?sortby=stock">STOCK</a></th>
-                <th class="w3-center"><a class="w3-button" href="/port/{{ port }}?sortby=positions">POSITIONS</a></th>
-                <th class="w3-center"><a class="w3-button" href="/port/{{ port }}?sortby=open">OPEN</a></th>
-                <th class="w3-center"><a class="w3-button" href="/port/{{ port }}?sortby=closed">CLOSED</a></th>
-                <th class="w3-right-align"><a href="/port/{{ port }}?sortby=proceeds">PROCEEDS</a></th>
+                <th class="w3-left-align"><a href="{{ request.path }}?sortby=stock">STOCK</a></th>
+                <th class="w3-center"><a href="{{ request.path }}?sortby=positions">POSITIONS</a></th>
+                <th class="w3-center"><a href="{{ request.path }}?sortby=open">OPEN</a></th>
+                <th class="w3-center"><a href="{{ request.path }}?sortby=closed">CLOSED</a></th>
+                <th class="w3-right-align"><a href="{{ request.path }}?sortby=proceeds">PROCEEDS</a></th>
             </tr>
             {% for stock in stocks %}
             <tr>
-                <td class="w3-left-align"><a class="w3-button" href="/port/{{ port }}/{{stock['stock']}}">{{stock.stock}}</a></td>
-                <td class="w3-center">{{ stock['positions'] }}</td>
-                <td class="w3-center"><a class="w3-button" href="/port/{{ port }}/{{stock['stock']}}/open">{{stock.open}}</a></td>
-                <td class="w3-center"><a class="w3-button" href="/port/{{ port }}/{{stock['stock']}}/closed">{{stock.closed}}</a></td>
+                <td class="w3-left-align"><a href="{{ request.path }}/{{stock['stock']}}">{{stock.stock}}</a></td>
+                <td class="w3-center"><a href="{{ request.path }}/{{stock['stock']}}">{{ stock['positions'] }}</a></td>
+                <td class="w3-center"><a href="{{ request.path }}/{{stock['stock']}}/open">{{stock.open}}</a></td>
+                <td class="w3-center"><a href="{{ request.path }}/{{stock['stock']}}/closed">{{stock.closed}}</a></td>
                 <td class="w3-right-align">{{stock.proceeds|ffloat}}</td>
             </tr>
             {% endfor %}
             <tr>
                 <td></td>
-                <td class="w3-center"><b>{{ stocks|sum(attribute='positions') }}</b></td>
-                <td class="w3-center"><b>{{ stocks|sum(attribute='open') }}</b></td>
-                <td class="w3-center"><b>{{ stocks|sum(attribute='closed') }}</b></td>
-                <td class="w3-right-align"><b>{{ stocks|sum(attribute='proceeds') }}</b></td>
+                <td class="w3-center"><a href="/positions/{{ port }}"><b>{{ stocks|sum(attribute='positions') }}</b></a></td>
+                <td class="w3-center"><a href="/open/{{ port }}"><b>{{ stocks|sum(attribute='open') }}</b></a></td>
+                <td class="w3-center"><a href="/closed/{{ port }}"><b>{{ stocks|sum(attribute='closed') }}</b></a></td>
+                <td class="w3-right-align"><b>{{ stocks|sum(attribute='proceeds')|ffloat }}</b></td>
             </tr>
         </table>
     {% else %}

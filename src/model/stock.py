@@ -36,16 +36,14 @@ class Stock(Model):
         return cls.read({'port': port, 'stock': stock})
 
     def add(self, trade):
-        """ Add this trade to a new or existing position """
+        """ Add this trade to a new or existing position and return the position """
         if trade.symbol in self.open: # Symbol has a position already e.g stock, option etc
             position = Position.find(trade.port, trade.symbol)
             assert position
             position.add(trade)
-            result = "CHANGED"
         else: # There are no positions on this symbol yet
             position = Position.new(trade)
             self.open.append(position.symbol)
-            result = "OPENED"
 
         if position.closed:
             self.closed.append(position.symbol)
@@ -53,7 +51,6 @@ class Stock(Model):
             self.proceeds += position.proceeds
             self.commission += position.commission
             self.cash += position.cash
-            result = "CLOSED"
 
         self.update()
-        return result, position
+        return position
