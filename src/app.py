@@ -32,7 +32,7 @@ try:
     DB.connect(app.config['DB_URL'], app.config['ENV'])
 except Exception as e:
     print('Failed to connect to database\n', e)
-3    sys.exit()
+    sys.exit()
 else:
     print(f" * Succesfully connected to the {app.config['ENV']} database *")
 

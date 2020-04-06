@@ -95,7 +95,6 @@ def port(port):
         flash(result.message, result.severity)
         result.message = []
     
-    # stocks = sorted(result.message, key=lambda i: i[sortby], reverse=reverse)
     stocks = _sort(result.message, sortby)
     return render_template("stocks.html", port=port, stocks=stocks)
 
@@ -166,7 +165,7 @@ def _ports():
 def _sort(items, sortby):
     global reverse 
     reverse = not reverse
-    if sortby:
+    if sortby and items:
         if type(items[0]) == dict: 
             return sorted(items, key=lambda i: i[sortby], reverse=reverse)
         return sorted(items, key=operator.attrgetter(sortby), reverse=reverse)
