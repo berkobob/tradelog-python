@@ -22,7 +22,7 @@ class Position(Model):
         self.cash = position['cash']
         self.days = position['days']
         self.rate = position['rate']
-        self.asset = position['asset']
+        self.position = position['position'] or "Wow"
         self.risk = position['risk']
 
     @classmethod
@@ -34,14 +34,14 @@ class Position(Model):
             'open': trade.date,
             'closed': False,
             'stock': trade.stock,
-            'trades': [trade._id],
+            'trades': [trade._id], # Only way to find a trade
             'quantity': trade.quantity,
             'commission': trade.commission,
             'proceeds': trade.proceeds,
             'cash': trade.cash,
             'days': 0,
             'rate': 0.0,
-            'asset': cls._asset(trade),
+            'position': cls._position(trade),
             'risk': cls._risk(trade)
         }).create()
 
@@ -62,13 +62,13 @@ class Position(Model):
             self.days = (self.closed - self.open).days
             self.rate = self.proceeds / self.days
             self.risk = self.proceeds / self.risk
+            if self.closed < self.open: self.position = self._position(trade)
         else:
             self.risk = self._risk(trade)
-        if self.closed < self.open: self.asset = self._asset(trade)
         return self.update()
 
     @staticmethod
-    def _asset(trade):
+    def _position(trade):
         los = "Long" if trade.quantity > 0 else "Short"
         if trade.asset == 'STK': name = f'{los} {trade.symbol} shares'
         else:

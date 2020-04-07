@@ -6,7 +6,7 @@
         <table class="w3-table w3-hoverable">
             <thead>
             <tr>
-                <th class="w3-left-align"><a href="{{ request.path }}?sortby=asset" >ASSET</a></th>
+                <th class="w3-left-align"><a href="{{ request.path }}?sortby=position" >POSITION</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=open">OPEN</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=closed">CLOSED</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=days">DAYS</a></th>
@@ -20,7 +20,7 @@
             </thead>
             {% for pos in closed %}
                 <tr onClick="window.location='/position/{{pos._id}}';">
-                    <td class="w3-left-align">{{pos.asset}}</td>
+                    <td class="w3-left-align">{{pos.position}}</td>
                     <td class="w3-center">{{pos.open|ftime}}</td>
                     <td class="w3-center">{{pos.closed|ftime}}</td>
                     <td class="w3-center">{{pos.days}}</td>

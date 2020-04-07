@@ -8,7 +8,7 @@
             <tr><td><h4><a href="/port/{{open[0].port}}/{{open[0].stock}}/open">Open</a></h4></td></tr>
             <tr>
                 <th><a href="{{ request.path }}?sortby=stock&what=open">STOCK</a></th>
-                <th class="w3-left-align"><a href="{{ request.path }}?sortby=asset&what=open">POSITION</a></th>
+                <th class="w3-left-align"><a href="{{ request.path }}?sortby=position&what=open">POSITION</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=open&what=open">OPEN</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=days&what=open">DAYS</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=trades&what=open">TRADES</a></th>
@@ -22,7 +22,7 @@
             {% for stock in open %}
                 <tr onClick="window.location='/position/{{stock._id}}';">
                     <td>{{ stock.stock }}</td>
-                    <td class="w3-left-align">{{ stock.asset }}</td>
+                    <td class="w3-left-align">{{ stock.position }}</td>
                     <td class="w3-center">{{ stock.open|ftime }}</td>
                     <td class="w3-center">{{ stock.days }}</td>
                     <td class="w3-center">{{ stock.trades }}</td>
@@ -51,13 +51,14 @@
         <tr><td><h4><a href="/port/{{closed[0].port}}/{{closed[0].stock}}/closed">Closed</a></h4></td></tr>
         <tr>
             <th class="w3-left-align"><a href="{{ request.path }}?sortby=stock&what=closed">STOCK</a></th>
-            <th class="w3-left-align"><a href="{{ request.path }}?sortby=asset&what=closed">POSITION</a></th>
+            <th class="w3-left-align"><a href="{{ request.path }}?sortby=position&what=closed">POSITION</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=open&what=closed">OPEN</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=closed&what=closed">CLOSED</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=days&what=closed">DAYS</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=trades&what=closed">TRADES</a></th>
-            <th class="w3-right-align"><a href="{{ request.path }}?sortby=commission&what=closed">COMMISSION</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=proceeds&what=closed">PROCEEDS</a></th>
+            <th class="w3-right-align"><a href="{{ request.path }}?sortby=commission&what=closed">COMMISSION</a></th>
+            <th class="w3-right-align"><a href="{{ request.path }}?sortby=cash&what=closed">CASH</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=proceeds&what=closed">RATE</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=risk&what=closed">RETURN</a></th>
         </tr>
@@ -65,13 +66,14 @@
         {% for stock in closed %}
             <tr onClick="window.location='/position/{{stock._id}}';">
                 <td class="w3-left-align">{{ stock.stock }}</td>
-                <td class="w3-left-align">{{ stock.asset }}</td>
+                <td class="w3-left-align">{{ stock.position }}</td>
                 <td class="w3-center">{{ stock.open|ftime }}</td>
                 <td class="w3-center">{{ stock.closed|ftime }}</td>
                 <td class="w3-center">{{ stock.days }}</td>
                 <td class="w3-center">{{ stock.trades }}</td>
-                <td class="w3-right-align">{{ stock.commission|ffloat }}</td>
                 <td class="w3-right-align">{{ stock.proceeds|ffloat }}</td>
+                <td class="w3-right-align">{{ stock.commission|ffloat }}</td>
+                <td class="w3-right-align">{{ stock.cash|ffloat }}</td>
                 <td class="w3-right-align">{{ stock.rate|ffloat }}</td>
                 <td class="w3-right-align">{{ stock.risk|fpercent }}</td>
             </tr>

@@ -63,8 +63,6 @@ class Portfolio(Model):
         elif len(position.trades) == 1: msg = 'opened'
         else: msg = 'changed'
 
-        print(len(position.trades))
-
         # If this trade closes the position then update portfolio totals
         if position.closed:
             self.proceeds += position.proceeds 

@@ -5,7 +5,7 @@
     <table class="w3-table w3-hoverable">
         <thead>
         <tr>
-            <th class="w3-left-align"><a href="{{ request.path }}?sortby=asset">POSITION</a></th>
+            <th class="w3-left-align"><a href="{{ request.path }}?sortby=position">POSITION</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=open">OPEN</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=days">DAYS</a></th>
             <th class="w3-center"><a href="{{ request.path }}?sortby=trades">TRADES</a></th>
@@ -13,13 +13,12 @@
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=proceeds">PROCEEDS</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=commission">COMMISSION</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=cash">CASH</a></th>
-            <th class="w3-center"><a href="{{ request.path }}?sortby=days">DAYS</a></th>
             <th class="w3-right-align"><a href="{{ request.path }}?sortby=risk">RISK</a></th>
         </tr>
         </thead>
         {% for pos in open %}
             <tr onClick="window.location='/position/{{pos._id}}';">
-                <td class="w3-left-align">{{pos.asset}}</td>
+                <td class="w3-left-align">{{pos.position}}</td>
                 <td class="w3-center">{{pos.open|ftime}}</td>
                 <td class="w3-center">{{pos.days}}</td>
                 <td class="w3-center">{{pos.trades}}</td>
@@ -27,7 +26,6 @@
                 <td class="w3-right-align">{{pos.proceeds|ffloat}}</td>
                 <td class="w3-right-align">{{pos.commission|ffloat}}</td>
                 <td class="w3-right-align">{{pos.cash|ffloat}}</td>
-                <td class="w3-center">{{pos.days}}</td>
                 <td class="w3-right-align">{{ pos.risk|ffloat }}</td>
             </tr>
         {% endfor %}

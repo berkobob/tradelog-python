@@ -14,7 +14,8 @@ def home():
         bar_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
         bar_chart.render_to_file('bar_chart.svg') 
         chart = bar_chart.render_data_uri()
-        return render_template('home.html', ports=_ports(), chart=chart)
+        sortby = request.args.get('sortby')
+        return render_template('home.html', ports=_sort(_ports(), sortby), chart=chart)
     else:
         return redirect('/user')
 
@@ -66,8 +67,7 @@ def load():
 @login_required
 def commit():
     """ Convert a raw trade into a processed trade """
-    global reverse
-    sortby = request.args.get('sortby') if request.args.get('sortby') else 'TradeDate'
+    sortby = request.args.get('sortby')
 
     if request.method == 'POST':
         result = Log.commit_raw_trade(request.form.get('raw_id'),
@@ -79,16 +79,14 @@ def commit():
     if not result.success: 
         flash(result.message, result.severity)
         result.message = []
-    trades = sorted(result.message, key = lambda i: i.trade[sortby], reverse=reverse)
-    reverse = not reverse
-    return render_template("raw_trades.html", trades=trades, ports=_ports())
+    elif not result.message: flash('There are no raw trades to commit', 'WARNING')
+    return render_template('raw_trades.html', trades=_sort(result.message, sortby), ports=_ports())
 
 @web.route('/port/<port>')
 @login_required
 def port(port):
     """ List the stocks in this port """
-    global reverse
-    sortby = request.args.get('sortby') if request.args.get('sortby') else 'stock'
+    sortby = request.args.get('sortby')
 
     result = Log.get_stocks(port)
     if not result.success:
@@ -97,14 +95,13 @@ def port(port):
     elif not result.message:
         flash("This portfolio contains no stocks. Commit a trade to get started.", "WARNING")
     
-    stocks = _sort(result.message, sortby)
-    return render_template("stocks.html", port=port, stocks=stocks)
+    return render_template("stocks.html", port=port, stocks=_sort(result.message, sortby))
 
 @web.route('/port/<port>/<stock>')
 @login_required
 def stock(port, stock):
     """ List the positions in this stock in this port """
-    sortby = request.args.get('sortby') or 'asset'
+    sortby = request.args.get('sortby')
     what = request.args.get('what')
 
     open = Log.get_open_positions(port, stock)
@@ -149,7 +146,7 @@ def closed(port, stock):
 @login_required
 def positions(port):
     """ List the positions in this port """
-    sortby = request.args.get('sortby') or 'asset'
+    sortby = request.args.get('sortby')
     what = request.args.get('what')
 
     open = Log.get_open_positions(port, None)
@@ -170,7 +167,7 @@ def positions(port):
 @login_required
 def allopen(port):
     """ List the positions in this port """
-    sortby = request.args.get('sortby') or 'asset'
+    sortby = request.args.get('sortby')
     open = Log.get_open_positions(port, None)
     if not open.success: 
         flash(open.message, open.severity)
@@ -182,7 +179,7 @@ def allopen(port):
 @login_required
 def allclosed(port):
     """ List the closed positions in this portfolio """
-    sortby = request.args.get('sortby') or 'asset'
+    sortby = request.args.get('sortby')
     closed = Log.get_closed_positions(port, None)
     if not closed.success: 
         flash(closed.message, closed.severity)
@@ -195,7 +192,7 @@ def allclosed(port):
 def position(_id):
     result = Log.get_trades(_id)
     if not result.success: flash(result.message, result.severity)
-    return render_template("trades.html", position=result.message, asset=result.severity)
+    return render_template("trades.html", positions=result.message, position=result.severity)
 
 
 # private functions
@@ -216,5 +213,6 @@ def _sort(items, sortby):
     if sortby and items:
         if type(items[0]) == dict: 
             return sorted(items, key=lambda i: i[sortby], reverse=reverse)
+        elif 'trade' in vars(items[0]).keys(): return sorted(items, key = lambda i: i.trade[sortby], reverse=reverse)
         return sorted(items, key=operator.attrgetter(sortby), reverse=reverse)
     return items

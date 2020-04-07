@@ -172,4 +172,4 @@ class Log:
         except AppError as e:
             return Result(success=False, message=e)
         else:
-            return Result(success=True, message=trades, severity=position.asset)
+            return Result(success=True, message=trades, severity=position.position)
