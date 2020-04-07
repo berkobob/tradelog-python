@@ -13,13 +13,16 @@ class Portfolio(Model):
         self.name = port['name']
         self.description = port['description']
         self.stocks = port['stocks']
-        self.proceeds = port['proceeds']
-        self.commission = port['commission']
-        self.cash = port['cash']
-        self.risk = port['risk']
+        self.open = port['open'] # positions?
+        self.closed = port['closed'] # positions?
+        self.proceeds = port['proceeds'] # closed positions
+        self.commission = port['commission'] # closed positions
+        self.cash = port['cash'] # closed positions
+        self.risk = port['risk'] # open positions
 
     @classmethod
     def new(cls, port):
+        """ Create a portfolio name and description. Only class that doesn't need a trade to be created """
         name = port['name'].strip()
         description = port['description'].strip()
         if name == "": raise AppError('Please provide a portfolio name', 'WARNING')
@@ -29,7 +32,9 @@ class Portfolio(Model):
             '_id': ObjectId(),
             'name': name,
             'description': description,
-            'stocks': [],
+            'stocks': 0,
+            'open': 0,
+            'closed': 0,
             'proceeds': 0.0,
             'commission': 0.0,
             'cash': 0.0,
@@ -48,31 +53,40 @@ class Portfolio(Model):
         trade = Trade.new(raw)
 
         # Does the stock exist in this portfolio
-        if trade.stock in self.stocks: # Yes
-            stock = Stock.get(port=self.name, stock=trade.stock)
-            assert stock
-        else: # This trade represents a new stock to this portfolio
-            stock = Stock.new(trade)
-            self.stocks.append(stock.stock)
+        stock = Stock.get(self.name, trade.stock)
+        if not stock: # This trade represents a new stock to this portfolio
+            stock = Stock.new(self.name, trade.stock)
+            self.stocks += 1
             self.update({'stocks': self.stocks})
 
         # Process this trade
+        risk = stock.risk
         position = stock.add(trade)
+        risk = stock.risk - risk
+        print('Change in risk is ', risk)
 
-        if len(position.trades) == 0: msg = 'closed'
-        elif len(position.trades) == 1: msg = 'opened'
-        else: msg = 'changed'
+        # Assume no change at port level unless...
+        msg = 'changed'
+
+        # Only having one trade means it much be a new position
+        if len(position.trades) == 1: 
+            msg = 'opened'
+            self.open += 1
+            self.risk += position.risk
 
         # If this trade closes the position then update portfolio totals
         if position.closed:
             self.proceeds += position.proceeds 
             self.commission += position.commission
             self.cash += position.cash
-            self.update()
+            msg = 'closed'
+            self.closed += 1
+            self.open -= 1
+            self.risk -= risk
+
+        self.update()
 
         x = f"By {trade.bos}ING {abs(trade.quantity)} {trade.stock} {trade.asset} for \
                 {trade.proceeds} this position was " + msg
-
         if msg == "closed": return x
-
         return msg + ". The position has a risk of " + str(position.risk)

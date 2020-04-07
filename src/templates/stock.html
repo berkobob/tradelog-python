@@ -81,9 +81,10 @@
             <td></td>
             <td></td>
             <td class="w3-center"><b>{{ (closed|sum(attribute='trades')) }}</b></td>
+            <td class="w3-right-align"><b>{{ closed|sum(attribute='proceeds')|ffloat }}</b></td>
             <td class="w3-right-align"><b>{{ closed|sum(attribute='commission')|ffloat }}</b></td>
             <td class="w3-right-align"><b>{{ closed|sum(attribute='cash')|ffloat }}</b></td>
-            <td class="w3-right-align"><b>{{ (closed|sum(attribute='rate')/closed|length)|ffloat }}</b></td>
+            <td class="w3-right-align"><b>{{ (closed|sum(attribute='rate'))|ffloat }}</b></td>
             <td></td>
         </tr>
         </thead>

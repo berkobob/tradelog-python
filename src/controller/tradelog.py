@@ -25,17 +25,7 @@ class Log:
             return Result(success=False, message="log.get_port_names: "+e.message, severity=e.severity)
         else:
             for portfolio in portfolios:
-                portfolio.open = 0
-                portfolio.closed = 0
-                for stock_name in portfolio.stocks:
-                    try:
-                        stock = Stock.get(portfolio.name, stock_name)
-                    except AppError as e:
-                        return Result(success=False, message=str(e), severity=e.severity)
-                    portfolio.open += len(stock.open)
-                    portfolio.closed += len(stock.closed)
                 portfolio.positions = portfolio.open + portfolio.closed
-                portfolio.stocks = len(portfolio.stocks)
             return Result(success=True, message=portfolios)
 
     @staticmethod
@@ -119,15 +109,7 @@ class Log:
         except AppError as e:
             result = Result(success=False, message=e, severity='WARNING')
         else:
-            result = Result(success=True,
-                            message = [{'stock': stock.stock, 
-                        'positions': len(stock.open)+len(stock.closed), 
-                        'open': len(stock.open), 
-                        'closed': len(stock.closed),
-                        'proceeds': stock.proceeds,
-                        'commission': stock.commission,
-                        'cash': stock.cash
-                        } for stock in stocks])
+            result = Result(success=True, message = stocks)
         return result
 
     @staticmethod

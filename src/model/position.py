@@ -60,12 +60,14 @@ class Position(Model):
             if self.risk == 0: self.risk = self._risk(trade) # closing trade committed first
             self.closed = trade.date
             self.days = (self.closed - self.open).days
+            if self.days == 0: self.days = 1
             self.rate = self.proceeds / self.days
-            self.risk = self.proceeds / self.risk
+            if self.risk != 0: self.risk = self.proceeds / self.risk
             if self.closed < self.open: self.position = self._position(trade)
         else:
             self.risk = self._risk(trade)
-        return self.update()
+        print(self.update())
+        return self
 
     @staticmethod
     def _position(trade):
@@ -80,7 +82,8 @@ class Position(Model):
     @staticmethod
     def _risk(trade):
         if trade.ooc == 'O':
-            if trade.asset == 'STK': risk = trade.proceeds
-            else: risk = trade.strike * trade.multiplier - trade.proceeds
-        else: risk = 0
-        return risk
+            if trade.asset == 'STK' and trade.quantity > 0: 
+                return trade.quantity * trade.price * trade.multiplier
+            if trade.asset == 'OPT':
+                return trade.strike * trade.multiplier - trade.proceeds
+        return 0

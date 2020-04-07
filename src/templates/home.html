@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class='w3-container'>
+    {% if ports[0] %}
     <table class="w3-table">
         <thead>
             <tr>
@@ -17,7 +18,7 @@
         </thead>
         {% for port in ports %}
             <tr>
-                <td>{{ port.name }} </td>
+                <td class="w3-left-align"><a href="/port/{{ port.name }}">{{ port.name }}</a></td>
                 <td class="w3-center"><a href="/port/{{ port.name }}">{{ port.stocks }}</a></td>
                 <td class="w3-center"><a href="/positions/{{ port.name }}">{{ port.positions }}</a></td>
                 <td class="w3-center"><a href="/open/{{ port.name }}">{{ port.open }}</a></td>
@@ -40,6 +41,7 @@
             <td class="w3-right-align"><b>{{ ports|sum(attribute='cash')|ffloat }}</b></td>
         </tr>
     </table>
+    {% endif %}
 </div>
 <!-- <div class="w3-container w3-half">
     <embed src="{{ chart }}" type="image/svg+xml">
