@@ -7,6 +7,7 @@ class Stock(Model):
     collection = "stock"
 
     def __init__(self, trade):
+        self._id = trade['_id']
         self.port = trade['port']
         self.stock = trade['stock']
         self.open = trade['open'] 
@@ -14,45 +15,49 @@ class Stock(Model):
         self.proceeds = trade['proceeds']
         self.commission = trade['commission']
         self.cash = trade['cash']
-        self._id = trade['_id']
         self.risk = trade['risk']
 
-    @classmethod
-    def new(cls, port, stock):
-        # create a new stock to add its first trade
-        return cls({
-            '_id': ObjectId(),
-            'port': port, 
-            'stock': stock,
-            'open': 0,
-            'closed': 0,
-            'proceeds': 0.0,
-            'commission': 0.0,
-            'cash': 0.0,
-            'risk': 0.0
-            }).create()
 
     @classmethod
     def get(cls, port, stock):
         """ Override model's get to use the stock name instead of _id """
         return cls.read({'port': port, 'stock': stock})
 
-    def add(self, trade):
+    @classmethod
+    def commit(cls, raw):
+        raw.stock = cls._parse(raw.trade['Symbol']) # Add stock name to raw trade
+        result = Position.commit(raw)
+        stock = cls.get(raw.port, raw.stock) # Does this stock exist for this portfolio
+        if stock: # This trade represents a new stock for this port
+            return stock.add(result)
+        result['port'] = raw.port
+        result['stock'] = raw.stock
+        return cls.new(result)
+
+    @classmethod
+    def new(cls, result):
+        # create a new stock to add its first trade
+        result['_id'] = ObjectId()
+        cls(result).create()
+        result['stocks'] = 1
+        return result
+
+    def add(self, result):
         """ Add this trade to a new or existing position and return the position """
-        position = Position.find(trade.port, trade.symbol) # Does position already exist
-        if position: position.add(trade)
-        else: 
-            position = Position.new(trade)
-            self.open += 1
+        self.open += result['open'] 
+        self.closed += result['closed']
+        self.proceeds += result['proceeds']
+        self.commission += result['commission']
+        self.cash += result['cash']
+        self.risk += result['risk']
+        self.update()
 
-        self.risk = position.risk
+        return result
 
-        if position.closed:
-            self.closed += 1
-            self.open -= 1
-            self.proceeds += position.proceeds
-            self.commission += position.commission
-            self.cash += position.cash
 
-        print(self.update())
-        return position
+    # Private functions
+    @staticmethod
+    def _parse(symbol: str) -> str:
+        stock = symbol.split(' ')[0]
+        if stock[-1].isalpha(): return stock
+        return stock[0:-1]

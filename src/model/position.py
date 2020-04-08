@@ -1,4 +1,5 @@
 from src.model.model import Model
+from src.model.trade import Trade
 from bson.objectid import ObjectId
 
 class Position(Model):
@@ -6,10 +7,11 @@ class Position(Model):
     Represents a series of trades until flat
     There can be only one position in a stock's open list with a specific symbol
     """
-    collection = "position"
+    collection = "positions"
 
     def __init__(self, position):
         self._id = position['_id']
+        self.position = position['position']
         self.port = position['port']
         self.symbol = position['symbol']
         self.stock = position['stock']
@@ -22,13 +24,27 @@ class Position(Model):
         self.cash = position['cash']
         self.days = position['days']
         self.rate = position['rate']
-        self.position = position['position'] or "Wow"
+        self.risk_per = position['risk_per']
         self.risk = position['risk']
 
     @classmethod
+    def find(cls, port, symbol):
+        """ Find a position on this symbol for this port """
+        return cls.read({'port': port, 'symbol': symbol})
+
+    @classmethod
+    def commit(cls, raw):
+        trade = Trade.new(raw) # Create a trade from the raw trade
+        position = Position.find(raw.port, raw.trade['Symbol'])
+        if position: return position.add(trade)
+        else: return cls.new(trade)
+
+    @classmethod
     def new(cls, trade):
-        return cls({
+        risk_per = trade.risk()
+        position = cls({
             '_id': ObjectId(),
+            'position': cls._position(trade),
             'port': trade.port,
             'symbol': trade.symbol,
             'open': trade.date,
@@ -41,14 +57,11 @@ class Position(Model):
             'cash': trade.cash,
             'days': 0,
             'rate': 0.0,
-            'position': cls._position(trade),
-            'risk': cls._risk(trade)
-        }).create()
-
-    @classmethod
-    def find(cls, port, symbol):
-        """ Find a position on this symbol for this port """
-        return cls.read({'port': port, 'symbol': symbol})
+            'risk': risk_per * trade.quantity,
+            'risk_per': risk_per,
+        })
+        position.create()
+        return trade.build_result(risk_per=risk_per, open=1, msg='OPENED')
 
     def add(self, trade):
         self.trades.append(trade._id)
@@ -56,18 +69,29 @@ class Position(Model):
         self.commission += trade.commission
         self.proceeds += trade.proceeds
         self.cash += trade.cash
-        if self.quantity == 0: # Then the position is closed
-            if self.risk == 0: self.risk = self._risk(trade) # closing trade committed first
-            self.closed = trade.date
-            self.days = (self.closed - self.open).days
-            if self.days == 0: self.days = 1
-            self.rate = self.proceeds / self.days
-            if self.risk != 0: self.risk = self.proceeds / self.risk
-            if self.closed < self.open: self.position = self._position(trade)
-        else:
-            self.risk = self._risk(trade)
-        print(self.update())
-        return self
+
+        if self.quantity == 0: self._close_position(trade)
+        self.update()
+
+        if self.closed:
+            result = trade.build_result(self.risk_per, open=-1, closed=1, msg='CLOSED')
+            result['proceeds'] = self.proceeds
+            result['commission'] = self.commission
+            result['cash'] = self.cash
+            return result
+        
+        self.risk += self.risk_per * trade.quantity
+        return trade.build_result(self.risk_per, msg='CHANGED')
+
+
+    # Private functions
+
+    def _close_position(self, trade):
+        self.closed = trade.date
+        self.days = abs((self.closed - self.open).days)
+        if self.days == 0: self.days = 1
+        self.rate = self.proceeds / self.days
+        if self.risk > 0: self.risk = self.proceeds / self.risk
 
     @staticmethod
     def _position(trade):
@@ -79,11 +103,3 @@ class Position(Model):
             name = f"{los} {expiry}, {strike} {trade.poc}"
         return name
 
-    @staticmethod
-    def _risk(trade):
-        if trade.ooc == 'O':
-            if trade.asset == 'STK' and trade.quantity > 0: 
-                return trade.quantity * trade.price * trade.multiplier
-            if trade.asset == 'OPT':
-                return trade.strike * trade.multiplier - trade.proceeds
-        return 0

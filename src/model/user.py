@@ -3,7 +3,7 @@ from src.common.database import DB
 from src.common.result import Result
 
 class User(UserMixin):
-    collection = 'user'
+    collection = 'users'
 
     def __init__(self, user):
         self.id = user['_id']

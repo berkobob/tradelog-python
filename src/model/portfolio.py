@@ -48,45 +48,21 @@ class Portfolio(Model):
 
     def commit(self, raw):
         """ Get a raw trade, process it into a trade and then add it to this port """
-        # Update the raw record with this port name & create a trade
-        raw.commit(self.name)
-        trade = Trade.new(raw)
 
-        # Does the stock exist in this portfolio
-        stock = Stock.get(self.name, trade.stock)
-        if not stock: # This trade represents a new stock to this portfolio
-            stock = Stock.new(self.name, trade.stock)
-            self.stocks += 1
-            self.update({'stocks': self.stocks})
+        raw.port = self.name # Add port name to raw trade
+        result = Stock.commit(raw) # Send the raw trade to the stock class
 
-        # Process this trade
-        risk = stock.risk
-        position = stock.add(trade)
-        risk = stock.risk - risk
-        print('Change in risk is ', risk)
-
-        # Assume no change at port level unless...
-        msg = 'changed'
-
-        # Only having one trade means it much be a new position
-        if len(position.trades) == 1: 
-            msg = 'opened'
-            self.open += 1
-            self.risk += position.risk
-
-        # If this trade closes the position then update portfolio totals
-        if position.closed:
-            self.proceeds += position.proceeds 
-            self.commission += position.commission
-            self.cash += position.cash
-            msg = 'closed'
-            self.closed += 1
-            self.open -= 1
-            self.risk -= risk
-
+        self.stocks += result['stocks']
+        self.open += result['open'] # positions?
+        self.closed += result['closed'] # positions?
+        self.proceeds += result['proceeds'] # closed positions
+        self.commission += result['commission'] # closed positions
+        self.cash += result['cash'] # closed positions
+        self.risk += result['risk'] # open positions
         self.update()
 
-        x = f"By {trade.bos}ING {abs(trade.quantity)} {trade.stock} {trade.asset} for \
-                {trade.proceeds} this position was " + msg
-        if msg == "closed": return x
-        return msg + ". The position has a risk of " + str(position.risk)
+        # return f"By {trade.bos}ING {abs(trade.quantity)} {trade.stock} {trade.asset} for \
+        #         {trade.proceeds} this position was {result['msg']}. The risk change is \
+        #         {result['risk']}."
+
+        return result['msg']
