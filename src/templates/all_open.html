@@ -29,7 +29,11 @@
                     <td class="w3-right-align">{{pos.proceeds|ffloat}}</td>
                     <td class="w3-right-align">{{pos.commission|ffloat}}</td>
                     <td class="w3-right-align">{{pos.cash|ffloat}}</td>
-                    <td class="w3-right-align">{{ pos.risk|ffloat }}</td>
+                    {% if pos.risk %}
+                        <td class="w3-right-align">{{ pos.risk|ffloat }}</td>
+                    {% else %}
+                        <td class="w3-right-align">∞</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             <thead>

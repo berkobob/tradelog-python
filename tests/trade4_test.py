@@ -47,7 +47,7 @@ class TestFourthTrade(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        print('\Fourth trade succesfully committed')
+        print('\nFourth trade succesfully committed')
 
 
 if __name__ == '__main__':

@@ -30,7 +30,11 @@
                     <td class="w3-right-align">{{ stock.proceeds|ffloat }}</td>
                     <td class="w3-right-align">{{ stock.commission|ffloat }}</td>
                     <td class="w3-right-align">{{ stock.cash|ffloat }}</td>
-                    <td class="w3-right-align">{{ stock.risk|ffloat }}</td>
+                    {% if stock.risk %}
+                        <td class="w3-right-align">{{ stock.risk|ffloat }}</td>
+                    {% else %}
+                        <td class="w3-right-align">∞</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             <thead>

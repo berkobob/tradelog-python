@@ -28,7 +28,11 @@
                     <td class="w3-right-align">{{ stock.proceeds|ffloat }}</td>
                     <td class="w3-right-align">{{ stock.commission|ffloat }}</td>
                     <td class="w3-right-align">{{ stock.cash|ffloat }}</td>
-                    <td class="w3-right-align">{{ stock.risk|ffloat }}</td>
+                    {% if stock.risk %}
+                        <td class="w3-right-align">{{ stock.risk|ffloat }}</td>
+                    {% else %}
+                        <td class="w3-right-align">∞</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             <thead>
@@ -38,6 +42,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td class="w3-right-align"><b>{{ open|sum(attribute='proceeds')|ffloat }}</b></td>
                 <td class="w3-right-align"><b>{{ open|sum(attribute='commission')|ffloat }}</b></td>
                 <td class="w3-right-align"><b>{{ open|sum(attribute='cash')|ffloat }}</b></td>
                 <td class="w3-right-align"><b>{{ open|sum(attribute='risk')|ffloat }}</b></td>

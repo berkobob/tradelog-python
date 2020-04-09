@@ -17,7 +17,11 @@
                 <td class="w3-left-align"><a href="{{ request.path }}/{{stock['stock']}}">{{stock.stock}}</a></td>
                 <td class="w3-center"><a href="{{ request.path }}/{{stock['stock']}}">{{ stock['open'] + stock['closed'] }}</a></td>
                 <td class="w3-right-align"><a href="{{ request.path }}/{{stock['stock']}}/open">{{stock.open}}</a></td>
-                <td class="w3-right-align">{{ stock.risk|ffloat }}</td>
+                {% if stock.open and not stock.risk %}
+                    <td class="w3-right-align">∞</td>
+                {% else %}
+                    <td class="w3-right-align">{{ stock.risk|ffloat }}</td>
+                {% endif %}
                 <td class="w3-right-align"><a href="{{ request.path }}/{{stock['stock']}}/closed">{{stock.closed}}</a></td>
                 <td class="w3-right-align">{{ stock.proceeds|ffloat }}</td>
             </tr>
