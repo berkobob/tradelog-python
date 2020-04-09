@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 
 class Stock(Model):
     """ An underlying position """
-    collection = "stock"
+    collection = "stocks"
 
     def __init__(self, trade):
         self._id = trade['_id']

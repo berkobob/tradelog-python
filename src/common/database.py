@@ -6,7 +6,6 @@ class DB:
     The mongo database API 
     Should only deal with database errors and not application errors
     """
-    db = []
 
     @classmethod
     def connect(cls, URL: str, env: str):
@@ -15,11 +14,14 @@ class DB:
         variables and the database from the environment.
         """
         try:
-            cls.db = MongoClient(URL, connectTimeoutMS=30000, 
+            cls.client = MongoClient(URL, connectTimeoutMS=30000, 
                                 socketTimeoutMS=None, socketKeepAlive=True, 
-                                connect=False, maxPoolsize=1)[env]
+                                connect=False, maxPoolsize=1)
         except Exception as e:
             raise AppError(e, 'ERROR')
+        else:
+            cls.db = cls.client[env]
+            return cls.client.admin.command('ping')
 
     @classmethod
     def create(cls, collection: str, record: str):
@@ -68,3 +70,21 @@ class DB:
             raise AppError(e)
         else: 
             return result
+
+    @classmethod
+    def ping(cls):
+        try:
+            result = cls.client.admin.command('ping')
+        except Exception as e:
+            raise AppError(e)
+        else:
+            return result
+
+    @classmethod
+    def drop(cls, db):
+        try:
+            cls.client.drop_database(db)
+        except Exception as e:
+            raise AppError(e)
+        else:
+            return True
