@@ -64,12 +64,12 @@ def callback():
     else:
         return "User email not available or not verified by Google.", 400
 
-    if User.get(unique_id):
-        login_user(User.get(unique_id))
+    if login_user(User.get(unique_id)):
         flash (f'Logon successful. Welcome back {users_name}', 'SUCCESS')
         return redirect('/')
     else: 
         flash('Invalid credentials! You are not logged in.', 'WARNING')
+        flash(f'Could not get user with ID {unique_id} from {User.collection}')
         return render_template('login.html')
 
 @user.route('/logout')

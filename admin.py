@@ -1,4 +1,5 @@
 import sys, json
+from os import environ
 from pymongo import MongoClient
 from src.model.portfolio import Portfolio
 from src.model.raw import Raw
@@ -39,16 +40,19 @@ def restore(db):
         raw = json.load(f)
         raw.sort(key=lambda i: (i['port'], i['trade']['TradeDate']))
 
-    name = ""
+    name = "  "
     for record in raw:
         raw = Raw.new(record['trade'])
         if name != record['port']: 
             port = Portfolio.get(record['port'])
             name = port.name
-        result = port.commit(raw)
-        print(result)
+        if name: print(port.commit(raw))
+        else: print('Trade still raw')
 
 if __name__ == '__main__':
+
+    db_url = environ.get('DB_URL')
+    print(db_url)
 
     if len(sys.argv) == 3:
 
