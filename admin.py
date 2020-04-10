@@ -15,10 +15,15 @@ def backup(db):
         json.dump([{'name': port['name'], 'description': port['description']} for port in db['portfolios'].find()], f)
     print(f'Successfully backedup {len(ports)} portfolios')
 
-    trades = [{'trade': raw['trade'], 'port': raw['port']} for raw in db['raw'].find()]
-    with open('raw.json', 'w') as f:
+    trades = [{'trade': raw['trade'], 'port': raw['port']} for raw in db['raw'].find({'port': {'$ne': None}})]
+    with open('trades.json', 'w') as f:
         json.dump(trades, f)
-    print(f'Successfully backedup {len(trades)} raw trades')
+    print(f'Successfully backedup {len(trades)} trades')
+
+    raw = [{'trade': raw['trade']} for raw in db['raw'].find({'port': None})]
+    with open('raw.json', 'w') as f:
+        json.dump(raw, f)
+    print(f'Successfully backedup {len(raw)} raw trades')
 
 
 def restore(db):
@@ -36,18 +41,23 @@ def restore(db):
         else:
             print(x)
 
-    with open('raw.json', 'r') as f:
-        raw = json.load(f)
-        raw.sort(key=lambda i: (i['port'], i['trade']['TradeDate']))
+    with open('trades.json', 'r') as f:
+        trades = json.load(f)
+        trades.sort(key=lambda i: (i['port'], i['trade']['TradeDate']))
 
-    name = "  "
-    for record in raw:
-        raw = Raw.new(record['trade'])
+    name = " "
+    for record in trades:
+        trade = Raw.new(record['trade'])
         if name != record['port']: 
             port = Portfolio.get(record['port'])
             name = port.name
-        if name: print(port.commit(raw))
-        else: print('Trade still raw')
+        print(port.commit(trade))
+
+    with open('raw.json', 'r') as f:
+        raw = json.load(f)
+
+    [print(Raw.new(r)) for r in raw]
+
 
 if __name__ == '__main__':
 
@@ -62,5 +72,4 @@ if __name__ == '__main__':
 
     else:
         print("Expecting two arguments: admin.py [backup|restore] database_name")
-        restore('test')
 
