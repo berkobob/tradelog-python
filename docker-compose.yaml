@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+    mongo:
+        image: mongo:bionic
+        ports:
+            - "27017-27019:27017-27019"
+        volumes:
+            - mongo-config:/data/configdb
+            - mongo-db:/data/db
+
+    tradelog:
+        image: tradelog:latest
+        ports:
+            - "80:8080"
+        environment:
+            - DB_URL=mongo:27017
+
+volumes:
+    mongo-config:
+    mongo-db:
