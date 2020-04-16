@@ -1,15 +1,11 @@
-FROM python:3.8
+FROM python:3.6
 
-WORKDIR /app
-
-ADD requirements.txt .
 RUN pip install pipenv
 
-RUN pipenv install --system --requirements requirements.txt
+RUN git clone -b docker https://github.com/berkobob/tradelog.git
 
-ADD admin.py .
-ADD http.ini .
+WORKDIR /tradelog
 
-ADD src ./src
+RUN pipenv install
 
-CMD ["uwsgi", "http.ini"]
+CMD ["pipenv", "run", "uwsgi", "http.ini"]
