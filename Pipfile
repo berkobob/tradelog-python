@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+dnspython = "*"
+
+[packages]
+oauthlib = "==3.1.0"
+pymongo = "==3.10.1"
+requests = "==2.20.1"
+pygal = "*"
+Flask = "==1.1.1"
+Flask-Login = "==0.5.0"
+uWSGI = "==2.0.18"
+
+[requires]
+python_version = "3.7"
