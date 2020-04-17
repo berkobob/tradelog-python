@@ -20,7 +20,6 @@ def load_user(user_id):
     return User.get(user_id)
 
 try:
-    print('DB -> ', app.config['DB_URL'])
     app.config.from_object('config.'+app.config['ENV'])
 except:
     app.config['DB_URL'] = environ.get('DB_URL')
@@ -30,6 +29,7 @@ except:
     app.config['GOOGLE_DISCOVERY_URL'] = environ.get('GOOGLE_DISCOVERY_URL')
 
 try:
+    print('DB -> ', app.config['DB_URL'])
     DB.connect(app.config['DB_URL'], app.config['ENV'])
 except Exception as e:
     print('Failed to connect to database\n', e)

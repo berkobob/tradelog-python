@@ -1,19 +1,17 @@
-FROM ubuntu:bionic
+FROM python:3.7
 
-RUN apt update && apt upgrade -y && \
-    apt install software-properties-common vim python3-pip git -y && \
-    add-apt-repository ppa:deadsnakes/ppa -y && \
-    apt update && apt install python3.7 -y
+RUN useradd tradelog \
+ && mkdir /home/tradelog \
+ && chown tradelog:tradelog /home/tradelog
 
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
+ENV PATH="/home/tradelog/.local/bin:${PATH}"
 
-#RUN pip3 install pipenv
+USER tradelog
 
-RUN git clone -b docker https://github.com/berkobob/tradelog.git 
+WORKDIR /home/tradelog
 
-WORKDIR /tradelog
+COPY . .
 
-RUN pip3 install -r requirements.txt 
+RUN pip3 install pipenv && pipenv install
 
-CMD ["uwsgi", "http.ini"]
+CMD ["pipenv", "run", "uwsgi", "http.ini"]
