@@ -20,7 +20,7 @@ def load_user(user_id):
     return User.get(user_id)
 
 try:
-    app.config.from_object('config.'+app.config['ENV'])
+    app.config.from_object('onfig.'+app.config['ENV'])
 except:
     app.config['DB_URL'] = environ.get('DB_URL')
     app.config['SECRET_KEY'] = urandom(24)

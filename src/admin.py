@@ -58,6 +58,20 @@ def restore(db):
 
     [print(Raw.new(r)) for r in raw]
 
+def setup():
+    from src.model.user import User
+
+    DB.connect('mongodb+srv://tradelog:tradelog@cluster0-4ov7h.mongodb.net/?retryWrites=true&w=majority', 'development')
+    DB.drop('development')
+    b = User.new({
+        '_id': "105728265192260536412",
+        "email": "alever",
+        "name": "antoine",
+        "profile_pic": "https://lh3.googleusercontent.com/a-/AOh14Gjhv_yDJ7H9pzKt-Ys_qpo3z1arP8b2oonY9bIGEw"
+    })
+    print(b)
+    print(DB.ping())
+
 
 if __name__ == '__main__':
 

@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 dnspython = "*"
+pylint = "*"
 
 [packages]
 oauthlib = "==3.1.0"

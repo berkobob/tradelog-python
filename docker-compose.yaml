@@ -8,13 +8,21 @@ services:
         volumes:
             - mongo-config:/data/configdb
             - mongo-db:/data/db
+        container_name: mongo
+        restart: always
 
     tradelog:
+        build: .
         image: berkobob/tradelog:latest
         ports:
             - "80:8080"
         environment:
             - DB_URL=${DB_URL}
+            - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+            - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+            - GOOGLE_DISCOVERY_URL=${GOOGLE_DISCOVERY_URL}
+        container_name: tradelog
+        restart: always
 
 volumes:
     mongo-config:

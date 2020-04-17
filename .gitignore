@@ -9,3 +9,4 @@ config/
 __pycache__/
 bar_chart*
 *.json
+*.env
