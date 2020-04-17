@@ -10,8 +10,11 @@ USER tradelog
 
 WORKDIR /home/tradelog
 
-COPY . .
+COPY --chown=tradelog:tradelog . .
 
 RUN pip3 install pipenv && pipenv install
+
+EXPOSE 8080
+EXPOSE 8443
 
 CMD ["pipenv", "run", "uwsgi", "http.ini"]
