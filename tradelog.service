@@ -1,0 +1,17 @@
+# These are comments
+
+[Unit]
+Description=Trade log
+After=network.target
+
+[Service]
+EnvironmentFile=/home/ubuntu/tradelog/env.var
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/tradelog
+Environment="PATH=/home/ubuntu/tradelog/venv/bin"
+ExecStart=/home/ubuntu/tradelog/venv/bin/uwsgi http.ini 
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
