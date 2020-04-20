@@ -12,7 +12,9 @@ from src.model.trade import Trade
 from src.model.raw import Raw
 from src.common.result import Result
 from src.common.exception import AppError
+from src.common.database import DB
 from datetime import datetime
+import json
 
 class Log:
 
@@ -155,3 +157,51 @@ class Log:
             return Result(success=False, message=e)
         else:
             return Result(success=True, message=trades, severity=position.position)
+
+    @staticmethod
+    def backup():
+
+        ports = [{'name': port.name, 'description': port.description} \
+                for port in Portfolio.read({}, many=True)]
+        with open('data/portfolios.json', 'w') as f:
+            json.dump([{'name': port['name'], 'description': port['description']} \
+                        for port in ports], f)
+
+        trades = [{'trade': raw.trade, 'port': raw.port} for raw in Trade.read({'port': {'$ne': None}}, many=True)]
+        with open('data/trades.json', 'w') as f:
+            json.dump(trades, f)
+
+        raw = [{'trade': raw.trade} for raw in Raw.read({'port': None}, many=True)]
+        with open('data/raw.json', 'w') as f:
+            json.dump(raw, f)
+
+        return Result(success=True, 
+            message=f'Successfully backed up {len(ports)} portfolios, {len(trades)} trades and {len(raw)} raw trades',
+            severity='SUCCESS')
+
+    @staticmethod
+    def restore():
+        DB.drop()
+        with open('data/portfolios.json', 'r') as f:
+            portfolios = json.load(f)
+
+        for portfolio in portfolios:
+            try:
+                Portfolio.new(portfolio)
+            except Exception as e:
+                return Result(success=False, message=str(e), severity='ERROR')
+
+        with open('data/trades.json', 'r') as f:
+            trades = json.load(f)
+            trades.sort(key=lambda i: (i['port'], i['trade']['TradeDate']))
+
+        [Log.commit_raw_trade(Raw.new(trade['trade']._id), trade['port']) for trade in trades]
+
+        with open('data/raw.json', 'r') as f:
+            raw = json.load(f)
+
+        [Raw.new(r) for r in raw]
+
+        return Result(success=True, 
+            message=f'Successfully restored {len(portfolios)} portfolios, {len(trades)} trades and \
+                    {len(raw)} raw trades', severity='SUCCESS')

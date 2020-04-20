@@ -20,6 +20,7 @@ class DB:
         except Exception as e:
             raise AppError(e, 'ERROR')
         else:
+            cls.name = env
             cls.db = cls.client[env]
             return cls.client.admin.command('ping')
 
@@ -81,9 +82,9 @@ class DB:
             return result
 
     @classmethod
-    def drop(cls, db):
+    def drop(cls):
         try:
-            cls.client.drop_database(db)
+            cls.client.drop_database(cls.name)
         except Exception as e:
             raise AppError(e)
         else:

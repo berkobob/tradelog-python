@@ -10,12 +10,12 @@ reverse = False
 def home():
     """ Render the home page """
     if current_user.is_authenticated:
-        bar_chart = pygal.Bar()                                            # Then create a bar graph object
-        bar_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
-        bar_chart.render_to_file('bar_chart.svg') 
-        chart = bar_chart.render_data_uri()
+        # bar_chart = pygal.Bar()                                            # Then create a bar graph object
+        # bar_chart.add('Fibonacci', [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55])  # Add some values
+        # bar_chart.render_to_file('bar_chart.svg') 
+        # chart = bar_chart.render_data_uri()
         sortby = request.args.get('sortby')
-        return render_template('home.html', ports=_sort(_ports(), sortby), chart=chart)
+        return render_template('home.html', ports=_sort(_ports(), sortby), chart=None)
     else:
         return redirect('/user')
 
@@ -193,6 +193,20 @@ def position(_id):
     result = Log.get_trades(_id)
     if not result.success: flash(result.message, result.severity)
     return render_template("trades.html", positions=result.message, position=result.severity)
+    
+@web.route('/backup')
+@login_required
+def backup():
+    result = Log.backup()
+    flash(result.message, result.severity)
+    return redirect(request.referrer)
+
+@web.route('/restore')
+@login_required
+def restore():
+    result = Log.restore()
+    flash(result.message, result.severity)
+    return redirect(request.referrer)
 
 
 # private functions
