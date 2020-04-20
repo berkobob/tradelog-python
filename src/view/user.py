@@ -64,7 +64,8 @@ def callback():
     else:
         return "User email not available or not verified by Google.", 400
 
-    if login_user(User.get(unique_id)):
+    user = User.get(unique_id)
+    if user and login_user(user):
         flash (f'Logon successful. Welcome back {users_name}', 'SUCCESS')
         return redirect('/')
     else: 

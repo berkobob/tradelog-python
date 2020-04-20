@@ -6,6 +6,8 @@ verify_ssl = true
 [dev-packages]
 dnspython = "*"
 pylint = "*"
+python-dotenv = "*"
+pyopenssl = "*"
 
 [packages]
 oauthlib = "==3.1.0"
@@ -15,7 +17,6 @@ pygal = "*"
 Flask = "==1.1.1"
 Flask-Login = "==0.5.0"
 uWSGI = "==2.0.18"
-dnspython = "*"
 
 [requires]
 python_version = "3.7"

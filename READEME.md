@@ -23,3 +23,17 @@ View - only view can flash message
 Controller - raises error or passes from model
 
 Model - can only raise error 
+
+
+[uwsgi]
+http = :8080
+https = :8443,fullchain.pem,privkey.pem,HIGH
+wsgi-file = src/app.py
+callable = app
+master = true
+processes = 4
+threads = 8
+memory-report = true
+stats = stats.sock
+plugins = router_redirect
+route-if-not = equal:${HTTPS};on redirect-permanent:https://${HTTP_HOST}${REQUEST_URI}

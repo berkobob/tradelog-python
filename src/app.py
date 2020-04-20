@@ -19,14 +19,11 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.get(user_id)
 
-try:
-    app.config.from_object('onfig.'+app.config['ENV'])
-except:
-    app.config['DB_URL'] = environ.get('DB_URL')
-    app.config['SECRET_KEY'] = urandom(24)
-    app.config['GOOGLE_CLIENT_ID'] = environ.get('GOOGLE_CLIENT_ID')
-    app.config['GOOGLE_CLIENT_SECRET'] = environ.get('GOOGLE_CLIENT_SECRET')
-    app.config['GOOGLE_DISCOVERY_URL'] = environ.get('GOOGLE_DISCOVERY_URL')
+app.config['DB_URL'] = environ.get('DB_URL')
+app.config['SECRET_KEY'] = urandom(24)
+app.config['GOOGLE_CLIENT_ID'] = environ.get('GOOGLE_CLIENT_ID')
+app.config['GOOGLE_CLIENT_SECRET'] = environ.get('GOOGLE_CLIENT_SECRET')
+app.config['GOOGLE_DISCOVERY_URL'] = environ.get('GOOGLE_DISCOVERY_URL')
 
 try:
     print('DB -> ', app.config['DB_URL'])
