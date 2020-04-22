@@ -85,7 +85,7 @@ def temp():
     user = User.me(email, name)
     if user:
         login_user(user)
-        flash (f'Logon successful. Welcome back {user.name}', 'SUCCESS')
+        flash (f'Login successful. Welcome back {user.name}', 'SUCCESS')
         return redirect('/')
 
     flash('Invalid credentials! You are not logged in.', 'WARNING')

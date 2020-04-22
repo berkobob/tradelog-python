@@ -45,10 +45,10 @@ class Log:
         """ For each row in the file create a raw trade and return the count """
         count = 0
         try:
-            with open(filename) as file:
-                headers = file.readline().split(',')
+            with open('data/'+filename) as file:
+                headers = file.readline().rstrip('\n').split(',')
                 for row in file: # Assuming all .csv data is valid
-                    Raw.new(dict(zip(headers, row.split(','))))
+                    Raw.new(dict(zip(headers, row.rstrip('\n').split(','))))
                     count += 1
         except Exception as e:
             return Result(success=False, message="log.load_trades_from: "+str(e), severity='ERROR')
@@ -97,7 +97,7 @@ class Log:
                           severity='ERROR')
 
         try:
-            message = portfolio.commit(raw_trade)
+            message = Log._parse_msg(portfolio.commit(raw_trade), raw_trade.trade['Quantity'])
         except AppError as e:
             return Result(success=False, message="log.commit_raw_trade: "+str(e), severity='ERROR')
 
@@ -181,6 +181,7 @@ class Log:
 
     @staticmethod
     def restore():
+
         DB.drop()
         with open('data/portfolios.json', 'r') as f:
             portfolios = json.load(f)
@@ -205,3 +206,33 @@ class Log:
         return Result(success=True, 
             message=f'Successfully restored {len(portfolios)} portfolios, {len(trades)} trades and \
                     {len(raw)} raw trades', severity='SUCCESS')
+
+    @staticmethod
+    def bulk(filename: str) -> Result:
+        try:
+            with open('data/'+filename) as file:
+                headers = file.readline().rstrip('\n').split(',')
+                raw = [dict(zip(headers, row.rstrip('\n').split(','))) for row in file]
+        except Exception as e:
+            return Result(success=False, message="log.load_trades_from: "+str(e), severity='ERROR')
+
+        raw.sort(key = lambda x: x['TradeDate'])
+
+        for r in raw:
+            r['msg'] = Log.commit_raw_trade(Raw.new(r)._id, r['Portfolio']).message
+            print(r['TradeDate'])
+
+        return Result(success=True, message=raw, severity='SUCCESS')
+
+    # Private function
+
+    @staticmethod
+    def _parse_msg(result, qty):
+        proceeds = '${:,.2f}'.format(float(result['proceeds']))
+        risk = '${:,.2f}'.format(float(result['risk']))
+        msg = ""
+        if result['stocks']: msg = " on a new stock"
+        if result['closed']: return f"CLOSE {result['pos']} on {result['stock']} for {proceeds}"
+        if result['open']: return f"OPEN {abs(int(qty))} {result['pos']} on {result['stock']} risking {risk}{msg}"
+        return f"CHANGE qty of {result['pos']} on {result['stock']} by {qty}. Risk change: {risk}"
+        

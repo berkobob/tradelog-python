@@ -1,4 +1,5 @@
 from flask_login import UserMixin
+from flask import current_app
 from src.common.database import DB
 from src.common.result import Result
 
@@ -11,6 +12,8 @@ class User(UserMixin):
         self.name = user['name']
         self.profile_pic = user['profile_pic']
 
+    def is_admin(self):
+        return self.name == current_app.config['ADMIN']
 
     @classmethod
     def get(cls, user_id):
@@ -26,4 +29,9 @@ class User(UserMixin):
         user = DB.read_one(cls.collection, {'email': email, 'name': name})
         if user: return cls(user)
         return None
+
+    @classmethod
+    def create(cls, user):
+        """ Save a copy of the class in the DB, add the _id and return the object """
+        return DB.create(cls.collection, user)
     

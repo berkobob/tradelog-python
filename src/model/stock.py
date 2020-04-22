@@ -51,7 +51,6 @@ class Stock(Model):
         self.cash += result['cash']
         self.risk += result['risk']
         self.update()
-
         return result
 
 

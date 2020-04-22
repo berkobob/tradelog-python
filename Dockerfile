@@ -12,7 +12,7 @@ WORKDIR /home/tradelog
 
 COPY --chown=tradelog:tradelog . .
 
-RUN pip3 install pipenv && pipenv install
+RUN pip3 install pipenv && pipenv install && mkdir data
 
 EXPOSE 8080
 EXPOSE 8443

@@ -5,12 +5,12 @@ Description=Trade log
 After=network.target
 
 [Service]
-EnvironmentFile=/home/ubuntu/tradelog/env.var
+EnvironmentFile=/home/tradelog/tradelog/env.var
 Type=simple
-User=ubuntu
-WorkingDirectory=/home/ubuntu/tradelog
-Environment="PATH=/home/ubuntu/tradelog/venv/bin"
-ExecStart=/home/ubuntu/tradelog/venv/bin/uwsgi http.ini 
+User=tradelog
+WorkingDirectory=/home/tradelog/tradelog
+# Environment="PATH=/home/tradelog/tradelog/venv/bin"
+ExecStart=/home/tradelog/tradelog/venv/bin/uwsgi http.ini 
 Restart=on-failure
 
 [Install]

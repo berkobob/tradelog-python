@@ -28,14 +28,15 @@ class Position(Model):
         self.risk = position['risk']
 
     @classmethod
-    def find(cls, port, symbol):
+    def find(cls, port, symbol, open=False):
         """ Find a position on this symbol for this port """
+        if open: return cls.read({'port': port, 'symbol': symbol, 'closed': False})
         return cls.read({'port': port, 'symbol': symbol})
 
     @classmethod
     def commit(cls, raw):
         trade = Trade.new(raw) # Create a trade from the raw trade
-        position = Position.find(raw.port, raw.trade['Symbol'])
+        position = Position.find(raw.port, raw.trade['Symbol'], True)
         if position: return position.add(trade)
         else: return cls.new(trade)
 
@@ -61,7 +62,7 @@ class Position(Model):
             'risk_per': risk_per,
         })
         position.create()
-        return trade.build_result(risk_per=risk_per, open=1, msg='OPENED')
+        return trade.build_result(pos=position.position, risk_per=risk_per, open=1)
 
     def add(self, trade):
         self.trades.append(trade._id)
@@ -74,14 +75,14 @@ class Position(Model):
         self.update()
 
         if self.closed:
-            result = trade.build_result(self.risk_per, open=-1, closed=1, msg='CLOSED')
+            result = trade.build_result(pos=self.position, risk_per=self.risk_per, open=-1, closed=1)
             result['proceeds'] = self.proceeds
             result['commission'] = self.commission
             result['cash'] = self.cash
             return result
         
         self.risk += self.risk_per * trade.quantity
-        return trade.build_result(self.risk_per, msg='CHANGED')
+        return trade.build_result(pos=self.position, risk_per=self.risk_per)
 
 
     # Private functions

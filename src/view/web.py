@@ -43,11 +43,11 @@ def new():
 @login_required
 def load():
     """ select a file of raw trades to load and process """
-    if request.method == 'GET': return render_template('load.html')
+    if request.method == 'GET': return render_template('load.html', action='/load')
 
     f = request.files['file']
     try:
-        f.save(f.filename)
+        f.save('data/'+f.filename)
     except Exception as e:
         flash(str(e), 'ERROR')
         return render_template('load.html')
@@ -60,7 +60,7 @@ def load():
     else:
         flash(f'Failed to process {f.filename}. {result.message}', result.severity)   
 
-    return render_template('load.html')
+    return render_template('load.html', action='/load')
 
 
 @web.route('/raw', methods=['GET', 'POST'])
@@ -204,10 +204,35 @@ def backup():
 @web.route('/restore')
 @login_required
 def restore():
-    result = Log.restore()
-    flash(result.message, result.severity)
+    if current_user.is_admin():
+        result = Log.restore()
+        flash(result.message, result.severity)
+    else:    
+        flash('This function requires admin priviledges', 'WARNING')
     return redirect(request.referrer)
 
+@web.route('/bulk', methods=['GET', 'POST'])
+def bulk():
+    """ select a file of raw trades to load and auto import """
+    if current_user.is_admin():
+        if request.method == 'GET': return render_template('load.html', action='/bulk')
+
+        f = request.files['file']
+        try:
+            f.save('data/'+f.filename)
+        except Exception as e:
+            flash(str(e), 'ERROR')
+
+        result = Log.bulk(f.filename)
+        if not result.success:
+            flash(f'Failed to process {f.filename}. {result.message}', result.severity)   
+
+        raw = sorted(result.message, key=lambda x: x['TradeDate'])
+        return render_template('bulk.html', raw=raw, ports=_ports())
+        
+    else:    
+        flash('This function requires admin priviledges', 'WARNING')
+        return redirect(request.referrer)
 
 # private functions
 

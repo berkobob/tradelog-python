@@ -20,10 +20,11 @@ def load_user(user_id):
     return User.get(user_id)
 
 app.config['DB_URL'] = environ.get('DB_URL')
-app.config['SECRET_KEY'] = urandom(24)
+app.config['SECRET_KEY'] = environ.get('SECRET_KEY') or urandom(24)
 app.config['GOOGLE_CLIENT_ID'] = environ.get('GOOGLE_CLIENT_ID')
 app.config['GOOGLE_CLIENT_SECRET'] = environ.get('GOOGLE_CLIENT_SECRET')
 app.config['GOOGLE_DISCOVERY_URL'] = environ.get('GOOGLE_DISCOVERY_URL')
+app.config['ADMIN'] = environ.get('ADMIN')
 
 try:
     print('DB -> ', app.config['DB_URL'])
@@ -44,8 +45,9 @@ def _format_date(date):
 
 @app.template_filter('ffloat')
 def _format_float(num):
-    # return '{:{width}.{prec}f}'.format(num, width=5, prec=2)
-    if num: return '${:,.2f}'.format(num)
+    if num: 
+        if isinstance(num, str): num = float(num)
+        return '${:,.2f}'.format(num)
     return ""
 
 @app.template_filter('fpercent')

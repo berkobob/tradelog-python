@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="w3-container w3-responsive">
+    <table class="w3-table">
+        <tr>
+            <th class="w3-left-align">PORT</th>
+            <th class="w3-left-align">DATE</th>
+            <th class="w3-center">BUY/SELL</th>
+            <th class="w3-right-align">QTY</th>
+            <th class="w3-left-align">STOCK</th>
+            <th class="w3-right-align">EXPIRY</th>
+            <th class="w3-right-align">STRIKE</th>
+            <th class="w3-center">PUT/CALL</th>
+            <th class="w3-right-align">PRICE</th>
+            <th class="w3-right-align">PROCEEDS</th>
+            <th class="w3-right-align">COMM</th>
+            <th class="w3-right-align">CASH</th>
+            <th class="w3-center">OPEN/CLOSE</th>
+            <th class="w3-right-align">MULT</th>
+            <th class="w3-right-align">NOTES</th>
+            <th class="w3-left-align">MESSAGE</th>
+        </tr>
+        {% for trade in raw %}
+            <tr>
+                <td class="w3-left-align">{{trade['Portfolio']}}</td>
+                <td class="w3-left-align">{{trade['TradeDate']}}</td>
+                <td class="w3-center">{{trade['Buy/Sell']}}</td>
+                <td class="w3-right-align">{{trade['Quantity']}}</td>
+                <td class="w3-left-align">{{trade['Symbol']}}</td>
+                <td class="w3-right-align">{{trade['Expiry']}}</td>
+                <td class="w3-right-align">{{trade['Strike']|ffloat}}</td>
+                <td class="w3-center">{{trade['Put/Call']}}</td>
+                <td class="w3-right-align">{{trade['TradePrice']|ffloat}}</td>
+                <td class="w3-right-align">{{trade['Proceeds']|ffloat}}</td>
+                <td class="w3-right-align">{{trade['Commission']|ffloat}}</td>
+                <td class="w3-right-align">{{trade['NetCash']|ffloat}}</td>
+                <td class="w3-center">{{trade['Open/CloseIndicator']}}</td>
+                <td class="w3-right-align">{{trade['Multiplier']}}</td>
+                <td class="w3-right-align">{{trade['Notes/Codes']}}</td>
+                <td class="w3-left-align">{{trade['msg']}}</td>
+            </tr>
+        {% endfor %}
+{% endblock %}

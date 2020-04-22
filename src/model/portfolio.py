@@ -61,8 +61,4 @@ class Portfolio(Model):
         self.risk += result['risk'] # open positions
         self.update()
 
-        # return f"By {trade.bos}ING {abs(trade.quantity)} {trade.stock} {trade.asset} for \
-        #         {trade.proceeds} this position was {result['msg']}. The risk change is \
-        #         {result['risk']}."
-
-        return result['msg']
+        return result

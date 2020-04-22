@@ -42,7 +42,12 @@ class Trade(Model):
             raw.trade['quantity'] = int(raw.trade['Quantity'])
             raw.trade['symbol'] = raw.trade['Symbol']
             raw.trade['stock'] = raw.stock
-            raw.trade['expiry'] = datetime.strptime(raw.trade['Expiry'], "%d/%m/%Y") if raw.trade['Expiry'] else None
+            if raw.trade['Expiry']:
+                if '/' in raw.trade['Expiry']:
+                    raw.trade['expiry'] = datetime.strptime(raw.trade['Expiry'], "%d/%m/%Y")
+                else:
+                    raw.trade['expiry'] = datetime.strptime(raw.trade['Expiry'], "%Y%m%d")
+            else: raw.trade['expiry'] = None
             raw.trade['strike'] = float(raw.trade['Strike']) if raw.trade['Strike'] else None
             raw.trade['poc'] = raw.trade['Put/Call'] if raw.trade['Put/Call'] else None
             raw.trade['price'] = float(raw.trade['TradePrice'])
@@ -52,7 +57,7 @@ class Trade(Model):
             raw.trade['asset'] = raw.trade['AssetClass']
             raw.trade['ooc'] = raw.trade['Open/CloseIndicator']
             raw.trade['multiplier'] = int(raw.trade['Multiplier'])
-            raw.trade['notes'] = raw.trade['Notes/Codes\n'][:-1]
+            raw.trade['notes'] = raw.trade['Notes/Codes']
             # raw.trade['risk'] = cls._risk(raw.trade)
         except Exception as e:
             raise AppError(e)
@@ -60,8 +65,9 @@ class Trade(Model):
             raw.commit(raw.port)
             return cls(raw.trade).create()
 
-    def build_result(self, risk_per, stocks=0, open=0, closed=0, msg=None):
+    def build_result(self, pos, risk_per, stocks=0, open=0, closed=0):
         return {
+            'stock': self.stock,
             'stocks': stocks,
             'open': open,
             'closed': closed,
@@ -69,7 +75,7 @@ class Trade(Model):
             'commission': 0,
             'cash': 0,
             'risk': self.quantity * risk_per,
-            'msg': msg
+            'pos': pos
         }
     
     def risk(self):
