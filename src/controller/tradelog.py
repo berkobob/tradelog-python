@@ -46,9 +46,9 @@ class Log:
         count = 0
         try:
             with open('data/'+filename) as file:
-                headers = file.readline().rstrip('\n').split(',')
+                headers = file.readline().rstrip('\n').replace('"', '').split(',')
                 for row in file: # Assuming all .csv data is valid
-                    Raw.new(dict(zip(headers, row.rstrip('\n').split(','))))
+                    Raw.new(dict(zip(headers, row.rstrip('\n').replace('"', '').split(','))))
                     count += 1
         except Exception as e:
             return Result(success=False, message="log.load_trades_from: "+str(e), severity='ERROR')
@@ -220,7 +220,6 @@ class Log:
 
         for r in raw:
             r['msg'] = Log.commit_raw_trade(Raw.new(r)._id, r['Portfolio']).message
-            print(r['TradeDate'])
 
         return Result(success=True, message=raw, severity='SUCCESS')
 

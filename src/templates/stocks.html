@@ -3,7 +3,7 @@
 <div class="w3-container w3-responsive">
     <h3>{{ port }}</h3>
     {% if stocks[0] %}
-        <table class="w3-table">
+        <table class="w3-table w3-hoverable">
             <tr>
                 <th class="w3-left-align"><a href="{{ request.path }}?sortby=stock">STOCK</a></th>
                 <th class="w3-center"><a href="{{ request.path }}?sortby=positions">POSITIONS</a></th>

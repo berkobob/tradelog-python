@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="w3-container w3-responsive">
-    <table class="w3-table">
+    <table class="w3-table w3-hoverable">
         <tr>
             <th class="w3-left-align">PORT</th>
             <th class="w3-left-align">DATE</th>
@@ -32,7 +32,7 @@
                 <td class="w3-center">{{trade['Put/Call']}}</td>
                 <td class="w3-right-align">{{trade['TradePrice']|ffloat}}</td>
                 <td class="w3-right-align">{{trade['Proceeds']|ffloat}}</td>
-                <td class="w3-right-align">{{trade['Commission']|ffloat}}</td>
+                <td class="w3-right-align">{{trade['IBCommission']|ffloat}}</td>
                 <td class="w3-right-align">{{trade['NetCash']|ffloat}}</td>
                 <td class="w3-center">{{trade['Open/CloseIndicator']}}</td>
                 <td class="w3-right-align">{{trade['Multiplier']}}</td>

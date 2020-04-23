@@ -5,7 +5,7 @@
     <form class="w3-container" action = "/new" method = "POST" enctype = "multipart/form-data">
         <div class="w3-row-padding">
             <div class="w3-col s3">
-                <input type="text" class="w3-input w3-border" placeholder="Name" name="name">
+                <input type="text" class="w3-input w3-border" id="name" placeholder="Name" name="name">
             </div>
             <div class="w3-col s8">
                 <input type="text" class="w3-input w3-border" placeholder="Description" name="description">
@@ -17,4 +17,9 @@
     </form>
     <p>&nbsp;</p>
 </div>
+
+<script>
+    document.getElementById("name").focus()
+</script>
+
 {% endblock %}

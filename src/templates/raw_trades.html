@@ -2,7 +2,7 @@
 {% block content %}
 <div class="w3-container w3-responsive">
     {% if trades[0] %}
-    <table class="w3-table">
+    <table class="w3-table w3-hoverable">
         <tr>
             {% for header in trades[0].trade.keys() %}
             <th><a class="w3-button" href="/raw?sortby={{header}}">{{ header }}</a></th>
