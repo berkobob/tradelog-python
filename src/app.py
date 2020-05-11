@@ -1,6 +1,7 @@
 from os import environ, urandom
 from flask import Flask
 from src.view.web import web
+from src.view.api import api
 from src.view.user import user
 from src.common.database import DB
 from src.model.user import User
@@ -10,6 +11,7 @@ import sys
 
 app = Flask(__name__)
 app.register_blueprint(web)
+app.register_blueprint(api, url_prefix='/api')
 app.register_blueprint(user, url_prefix='/user')
 
 login_manager = LoginManager()
