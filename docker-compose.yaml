@@ -22,6 +22,7 @@ services:
             - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
             - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
             - GOOGLE_DISCOVERY_URL=${GOOGLE_DISCOVERY_URL}
+            - ADMIN=${ADMIN}
         container_name: tradelog
         restart: always
 
