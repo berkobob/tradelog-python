@@ -84,6 +84,11 @@ class Position(Model):
         self.risk += self.risk_per * trade.quantity
         return trade.build_result(pos=self.position, risk_per=self.risk_per)
 
+    def to_json(self):
+        json = vars(self)
+        json['_id'] = str(self._id)
+        json['trades'] = [str(id) for id in self.trades]
+        return json
 
     # Private functions
 

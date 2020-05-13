@@ -91,3 +91,9 @@ class Trade(Model):
                     return -self.strike * self.multiplier
 
         return 0
+
+    def to_json(self):
+        json = vars(self)
+        json['_id'] = str(self._id)
+        json['raw_id'] = str(self.raw_id)
+        return json

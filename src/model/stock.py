@@ -53,6 +53,11 @@ class Stock(Model):
         self.update()
         return result
 
+    def to_json(self):
+        json = vars(self)
+        json['_id'] = str(self._id)
+        return json
+
 
     # Private functions
     @staticmethod

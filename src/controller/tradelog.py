@@ -160,7 +160,6 @@ class Log:
 
     @staticmethod
     def backup():
-
         ports = [{'name': port.name, 'description': port.description} \
                 for port in Portfolio.read({}, many=True)]
         with open('data/portfolios.json', 'w') as f:
