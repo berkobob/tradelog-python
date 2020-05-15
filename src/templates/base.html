@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/static/css/tradelog.css" type="text/css" >
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <title>Trade Log</title>
 </head>
 <body>
@@ -13,7 +14,8 @@
     <div class="w3-container w3-top w3-bar w3-black">
         <a href="/" class="w3-bar-item w3-button">Trade Log</a>
         <a href="/new" class="w3-bar-item w3-button">New</a>
-        <a href="/load" class="w3-bar-item w3-button">Load</a>
+        <a href="/load" class="w3-bar-item w3-button">Load IB</a>
+        <a href="/sharepad" class="w3-bar-item w3-button">Load SP</a>
         <a href="/raw" class="w3-bar-item w3-button">Raw</a>
         <div class="w3-dropdown-hover">
             <button class="w3-button">Admin</button>

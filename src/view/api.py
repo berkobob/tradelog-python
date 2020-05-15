@@ -1,6 +1,6 @@
 import operator
 from flask import Blueprint, jsonify, abort
-from src.controller.tradelog import Log
+from src.controller.tradelog import TradeLog as Log
 
 api = Blueprint('api', __name__)
 

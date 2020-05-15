@@ -37,12 +37,12 @@ class Trade(Model):
             raw.trade['_id'] = ObjectId()
             raw.trade['raw_id'] = raw._id 
             raw.trade['port'] = raw.port
-            raw.trade['date'] = datetime.strptime(raw.trade['TradeDate'], "%Y%m%d")
-            raw.trade['bos'] = raw.trade['Buy/Sell']
-            raw.trade['quantity'] = int(raw.trade['Quantity'])
-            raw.trade['symbol'] = raw.trade['Symbol']
+            raw.trade['date'] = datetime.strptime(raw.trade['TradeDate'], "%Y%m%d") if 'TradeDate' in raw.trade.keys() else datetime.strptime(raw.trade['Date'], '%d/%m/%y')
+            raw.trade['bos'] = raw.trade['Buy/Sell'] # if 'Buy/Sell' in raw.trade.keys() else raw.trade['Shares']
+            raw.trade['quantity'] = int(raw.trade['Quantity']) # if 'Quantity' in raw.trade.keys() else int(raw.trade['Shares'])
+            raw.trade['symbol'] = raw.trade['Symbol'] # if 'Symbol' in raw.trade.keys() else raw.trade['TIDM']
             raw.trade['stock'] = raw.stock
-            if raw.trade['Expiry']:
+            if 'Expiry' in raw.trade.keys() and raw.trade['Expiry']:
                 if '/' in raw.trade['Expiry']:
                     raw.trade['expiry'] = datetime.strptime(raw.trade['Expiry'], "%d/%m/%Y")
                 else:
@@ -58,7 +58,6 @@ class Trade(Model):
             raw.trade['ooc'] = raw.trade['Open/CloseIndicator']
             raw.trade['multiplier'] = int(raw.trade['Multiplier'])
             raw.trade['notes'] = raw.trade['Notes/Codes']
-            # raw.trade['risk'] = cls._risk(raw.trade)
         except Exception as e:
             raise AppError(e)
         else:
@@ -80,7 +79,7 @@ class Trade(Model):
     
     def risk(self):
         if self.asset == 'STK':
-            if self.quantity > 0: # Assume long as short is infite risk
+            if self.quantity > 0: # Assume long as short is infinite risk
                 return self.price * self.multiplier
 
         elif self.asset == 'OPT':

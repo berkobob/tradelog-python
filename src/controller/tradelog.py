@@ -16,7 +16,7 @@ from src.common.database import DB
 from datetime import datetime
 import json
 
-class Log:
+class TradeLog:
 
     @staticmethod
     def get_ports() -> Result:
@@ -97,7 +97,7 @@ class Log:
                           severity='ERROR')
 
         try:
-            message = Log._parse_msg(portfolio.commit(raw_trade), raw_trade.trade['Quantity'])
+            message = TradeLog._parse_msg(portfolio.commit(raw_trade), raw_trade.trade['Quantity'])
         except AppError as e:
             return Result(success=False, message="log.commit_raw_trade: "+str(e), severity='ERROR')
 
@@ -195,7 +195,7 @@ class Log:
             trades = json.load(f)
             trades.sort(key=lambda i: (i['port'], i['trade']['TradeDate']))
 
-        [Log.commit_raw_trade(Raw.new(trade['trade']._id), trade['port']) for trade in trades]
+        [TradeLog.commit_raw_trade(Raw.new(trade['trade']._id), trade['port']) for trade in trades]
 
         with open('data/raw.json', 'r') as f:
             raw = json.load(f)
@@ -218,9 +218,39 @@ class Log:
         raw.sort(key = lambda x: x['TradeDate'])
 
         for r in raw:
-            r['msg'] = Log.commit_raw_trade(Raw.new(r)._id, r['Portfolio']).message
+            r['msg'] = TradeLog.commit_raw_trade(Raw.new(r)._id, r['Portfolio']).message
 
         return Result(success=True, message=raw, severity='SUCCESS')
+
+    @staticmethod
+    def load_sharepad_trades(filename, port):
+        try:
+            with open(filename) as file:
+                headers = file.readline().replace('\ufeff','').split(',')
+                for row in file:
+                    trade = dict(zip(headers, row.split(',')))
+                    if trade['Name'] == 'Buy' or trade['Name'] == 'Sell':
+                        trade['Buy/Sell'] = trade['Name']
+                        trade['Quantity'] = trade['Shares'] if trade['Name'] == 'Buy' else '-'+trade['Shares']
+                        trade['Symbol'] = trade['TIDM']
+                        trade['Strike'] = False
+                        trade['Put/Call'] = False
+                        trade['TradePrice'] = trade['Price']
+                        trade['Proceeds'] = trade['Cost']
+                        trade['IBCommission'] = "0.0"
+                        trade['NetCash'] = trade['Cost']
+                        trade['AssetClass'] = 'STK'
+                        if trade['Name'] == 'Buy': trade['Open/CloseIndicator'] = 'O'
+                        if trade['Name'] == 'Sell': trade['Open/CloseIndicator'] = 'C'
+                        trade['Multiplier'] = '1'
+                        trade['Notes/Codes'] = "ex"
+                        raw = Raw.new(trade)._id
+                        if port: TradeLog.commit_raw_trade(raw, port)
+        except Exception as e:
+            return Result(False, 'log.load_sharepad_trades: '+str(e), 'ERROR')
+
+        return Result(True, message='Phew')
+
 
     # Private function
 

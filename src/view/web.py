@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, redirect
 from flask_login import current_user, login_required
-from src.controller.tradelog import Log
+from src.controller.tradelog import TradeLog as Log 
 import pygal, operator
 
 web = Blueprint('web', __name__)
@@ -27,7 +27,7 @@ def new():
 
         result = Log.create_portfolio({
                     'name': request.form['name'],
-                    'description': request.form['description']
+                    'description': request.form['description'],
                     })
 
         if result.success:
@@ -50,7 +50,7 @@ def load():
         f.save('data/'+f.filename)
     except Exception as e:
         flash(str(e), 'ERROR')
-        return render_template('load.html')
+        return render_template('load.html', action='/load')
 
     result = Log.load_trades_from(f.filename)
 
@@ -71,7 +71,7 @@ def commit():
 
     if request.method == 'POST':
         result = Log.commit_raw_trade(request.form.get('raw_id'),
-                                    request.form.get('port'))
+                                    request.form.get('port').replace('_',' '))
         flash(result.message, result.severity)
 
     result=Log.get_raw_trades()
@@ -80,7 +80,7 @@ def commit():
         flash(result.message, result.severity)
         result.message = []
     elif not result.message: flash('There are no raw trades to commit', 'WARNING')
-    return render_template('raw_trades.html', trades=_sort(result.message, sortby), ports=_ports())
+    return render_template('raw_trades.html', trades=_sort(result.message, sortby), ports=[port.name.replace(' ', '_') for port in _ports()])
 
 @web.route('/port/<port>')
 @login_required
@@ -212,6 +212,7 @@ def restore():
     return redirect(request.referrer)
 
 @web.route('/bulk', methods=['GET', 'POST'])
+@login_required
 def bulk():
     """ select a file of raw trades to load and auto import """
     if current_user.is_admin():
@@ -228,11 +229,38 @@ def bulk():
             flash(f'Failed to process {f.filename}. {result.message}', result.severity)   
 
         raw = sorted(result.message, key=lambda x: x['TradeDate'])
-        return render_template('bulk.html', raw=raw, ports=_ports())
+        return render_template('bulk.html', raw=raw)
         
     else:    
         flash('This function requires admin priviledges', 'WARNING')
         return redirect(request.referrer)
+
+@web.route('/sharepad', methods=['GET', 'POST'])
+@login_required
+def sharepad():
+    """ Load trades from sharepad instead of IB """
+    if request.method == 'GET': 
+
+        return render_template('sharepad.html', ports=[port.name.replace(' ', '_') for port in _ports()])
+
+    if 'port' in request.form.keys(): port = request.form['port'].replace('_', ' ')
+    else: port = None
+
+    f = request.files['file']
+    try:
+        f.save('data/'+f.filename)
+    except Exception as e:
+        flash(str(e), 'ERROR')
+        return render_template('sharepad.html', ports=[port.name.replace(' ', '_') for port in _ports()])
+
+    result = Log.load_sharepad_trades('data/'+f.filename, port)
+
+    if result.success:
+        flash(f'{f.filename} loaded successfully!', 'SUCCESS')
+    else:
+        flash(f'Failed to load {f.filename}. {result.message}', result.severity)
+
+    return render_template('sharepad.html', ports=[port.name.replace(' ', '_') for port in _ports()])
 
 # private functions
 

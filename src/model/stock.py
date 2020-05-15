@@ -25,7 +25,9 @@ class Stock(Model):
 
     @classmethod
     def commit(cls, raw):
-        raw.stock = cls._parse(raw.trade['Symbol']) # Add stock name to raw trade
+        # raw.stock = cls._parse(raw.trade['Symbol']) # Add stock name to raw trade
+
+        raw.stock = cls._parse(raw.trade['Symbol']) if 'Symbol' in raw.trade.keys() else raw.trade['TIDM']
         result = Position.commit(raw)
         stock = cls.get(raw.port, raw.stock) # Does this stock exist for this portfolio
         if stock: # This trade represents a new stock for this port

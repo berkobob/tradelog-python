@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="w3-card-4 w3-container">
+    <div class="w3-container">
+        <h2>Load a file of trades:</h2>
+    </div>
+    <form class="w3-container" action="/sharepad" method="POST" enctype="multipart/form-data">
+        <div class="w3-col s10">
+            <input class="w3-button" type="file" name="file" />
+        </div>
+        <div class="w3-col s1">
+            <select name="port" id="" class="w3-select">
+                <option disabled selecte>Select a portfolio</option>
+                {% for port in ports %}
+                <option value={{port}}>{{ port }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="w3-col s1">
+            <input class="w3-button w3-black" type="submit" />
+        </div>
+        <p>&nbsp;</p>
+    </form>
+</div>
+{% endblock %}
