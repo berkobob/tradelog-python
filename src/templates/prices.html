@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="w3-container w3-responsive">
+    {% if prices[0] %}
+    <table class="w3-table w3-hoverable">
+        <tr>
+            <th><a class="w3-button" href="#">Stock</a></th>
+            <th><a class="w3-button" href="#">Cost</a></th>
+            <th><a class="w3-button" href="#">Price</a></th>
+        </tr>
+        {% for stock in prices %}
+        <tr>
+            <td>{{stock['stock']}}</td>
+            <td>{{stock['cost']|ffloat}}</td>
+            <td>{{stock['price']|ffloat}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>TOTAL:</td>
+            <td></td>
+        </tr>
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, redirect
 from flask_login import current_user, login_required
 from src.controller.tradelog import TradeLog as Log 
+from src.controller.prices import Prices
 import pygal, operator
 
 web = Blueprint('web', __name__)
@@ -261,6 +262,22 @@ def sharepad():
         flash(f'Failed to load {f.filename}. {result.message}', result.severity)
 
     return render_template('sharepad.html', ports=[port.name.replace(' ', '_') for port in _ports()])
+
+@web.route('/prices')
+@login_required
+def port_prices():
+    return render_template('port_prices.html', ports=_ports())
+
+@web.route('/prices/<port>')
+@login_required
+def prices(port):
+    open = Log.get_open_positions(port, None)
+    if not open.success: 
+        flash(open.message, open.severity)
+        return redirect('/prices')
+    if not open.message: flash("This portfolio contains no open positions", "WARNING")
+
+    return render_template('prices.html', prices=Prices.price(open.message))
 
 # private functions
 

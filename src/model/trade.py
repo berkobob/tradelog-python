@@ -79,8 +79,8 @@ class Trade(Model):
     
     def risk(self):
         if self.asset == 'STK':
-            if self.quantity > 0: # Assume long as short is infinite risk
-                return self.price * self.multiplier
+            # if self.quantity > 0: # Assume long as short is infinite risk
+            return self.price * self.multiplier
 
         elif self.asset == 'OPT':
             if self.quantity > 0: # Long

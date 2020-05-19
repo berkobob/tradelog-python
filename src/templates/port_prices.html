@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class='w3-container'>
+    {% if ports[0] %}
+    <table class="w3-table w3-hoverable">
+        <thead>
+            <tr>
+                <th class="w3-center">PORTFOLIO</th>
+                <th class="w3-center">VALUE</th>
+            </tr>
+        </thead>
+        {% for port in ports %}
+            <tr onClick="window.location='/prices/{{ port.name }}';">
+                <td class="w3-left-align">{{ port.name }}</td>
+                <td class="w3-center">0</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td></td>
+            <td class="w3-center"><b>0</b></td>
+            <!-- <td class="w3-center"><b>{{ ports|sum(attribute='stocks') }}</b></td> -->
+        </tr>
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

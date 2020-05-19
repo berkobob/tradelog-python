@@ -27,7 +27,11 @@
                 <td class="w3-right-align">{{trade.stock}}</td>
                 <td class="w3-right-align">{{trade.expiry|ftime}}</td>
                 <td class="w3-right-align">{{trade.strike|ffloat}}</td>
-                <td class="w3-center">{{trade.poc}}</td>
+                {% if trade.poc %}
+                    <td class="w3-center">{{trade.poc}}</td>
+                {% else %}
+                    <td class="w3-center"></td>
+                {% endif %}
                 <td class="w3-right-align">{{trade.price|ffloat}}</td>
                 <td class="w3-right-align">{{trade.proceeds|ffloat}}</td>
                 <td class="w3-right-align">{{trade.commission|ffloat}}</td>

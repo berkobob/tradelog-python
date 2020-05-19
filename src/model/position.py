@@ -72,6 +72,7 @@ class Position(Model):
         self.cash += trade.cash
 
         if self.quantity == 0: self._close_position(trade)
+        self.risk += trade.risk() * trade.quantity
         self.update()
 
         if self.closed:
@@ -81,7 +82,6 @@ class Position(Model):
             result['cash'] = self.cash
             return result
         
-        self.risk += self.risk_per * trade.quantity
         return trade.build_result(pos=self.position, risk_per=self.risk_per)
 
     def to_json(self):
