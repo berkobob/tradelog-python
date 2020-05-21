@@ -21,14 +21,21 @@ class Model:
 
     @classmethod
     def get(cls, _id):
-        result = DB.read_one(cls.collection, {'_id': ObjectId(_id)})
+        try: 
+            _id = ObjectId(_id)
+        except Exception:
+            pass
+        # result = DB.read_one(cls.collection, {'_id': ObjectId(_id)})
+        result = DB.read_one(cls.collection, {'_id': _id})
         if result: return cls(result)
         return None
         
     def update(self, values=None):
         if not values: values = vars(self)
+        # return DB.update(self.collection, 
+        #                     {"_id": ObjectId(self._id)}, {"$set": values})
         return DB.update(self.collection, 
-                            {"_id": ObjectId(self._id)}, {"$set": values})
+                            {"_id": self._id}, {"$set": values})
         
     def delete(self):
         return DB.delete(self.collection, {"_id": ObjectId(self._id)})

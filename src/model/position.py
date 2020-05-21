@@ -73,6 +73,10 @@ class Position(Model):
 
         if self.quantity == 0: self._close_position(trade)
         self.risk += trade.risk() * trade.quantity
+
+        if trade.ooc == 'O':
+            self.risk_per = self.risk / self.quantity
+
         self.update()
 
         if self.closed:

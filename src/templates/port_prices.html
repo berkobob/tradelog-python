@@ -10,15 +10,14 @@
             </tr>
         </thead>
         {% for port in ports %}
-            <tr onClick="window.location='/prices/{{ port.name }}';">
-                <td class="w3-left-align">{{ port.name }}</td>
-                <td class="w3-center">0</td>
+            <tr onClick="window.location='/prices/{{ port.port }}';">
+                <td class="w3-left-align">{{ port.port }}</td>
+                <td class="w3-center">{{ port.value|ffloat }}</td>
             </tr>
         {% endfor %}
         <tr>
             <td></td>
-            <td class="w3-center"><b>0</b></td>
-            <!-- <td class="w3-center"><b>{{ ports|sum(attribute='stocks') }}</b></td> -->
+            <td class="w3-center"><b>{{ ports|sum(attribute='value')|ffloat }}</b></td>
         </tr>
     </table>
     {% endif %}

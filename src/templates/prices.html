@@ -6,18 +6,25 @@
         <tr>
             <th><a class="w3-button" href="#">Stock</a></th>
             <th><a class="w3-button" href="#">Cost</a></th>
-            <th><a class="w3-button" href="#">Price</a></th>
+            <th><a class="w3-button" href="#">Price Now</a></th>
+            <th><a class="w3-button" href="#">Change</a></th>
+            <th><a class="w3-button" href="#">Value</a></th>
         </tr>
         {% for stock in prices %}
         <tr>
             <td>{{stock['stock']}}</td>
             <td>{{stock['cost']|ffloat}}</td>
             <td>{{stock['price']|ffloat}}</td>
+            <td>{{stock['percent']|fpercent}}</td>
+            <td>{{stock['value']|ffloat}}</td>
         </tr>
         {% endfor %}
         <tr>
-            <td>TOTAL:</td>
             <td></td>
+            <td></td>
+            <td></td>
+            <td>TOTAL:</td>
+            <td>{{ prices|sum(attribute='value')|ffloat }}</td>
         </tr>
     </table>
     {% endif %}

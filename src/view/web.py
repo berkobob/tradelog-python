@@ -266,7 +266,7 @@ def sharepad():
 @web.route('/prices')
 @login_required
 def port_prices():
-    return render_template('port_prices.html', ports=_ports())
+    return render_template('port_prices.html', ports=Prices.prices(_ports()))
 
 @web.route('/prices/<port>')
 @login_required
@@ -278,6 +278,12 @@ def prices(port):
     if not open.message: flash("This portfolio contains no open positions", "WARNING")
 
     return render_template('prices.html', prices=Prices.price(open.message))
+
+@web.route('/update')
+@login_required
+def update():
+    return render_template('update.html', prices=Log.update())
+
 
 # private functions
 

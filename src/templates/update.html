@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class='w3-container'>
+    {% if prices[0] %}
+    <table class="w3-table w3-hoverable">
+        <thead>
+            <tr>
+                <th class="w3-center">STOCK</th>
+                <th class="w3-center">PRICE</th>
+            </tr>
+        </thead>
+        {% for price in prices %}
+            <tr>
+                <td class="w3-left-align">{{ price._id }}</td>
+                <td class="w3-center">{{ price.price|ffloat }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

@@ -10,6 +10,7 @@ from src.model.stock import Stock
 from src.model.position import Position
 from src.model.trade import Trade
 from src.model.raw import Raw
+from src.model.price import Price
 from src.common.result import Result
 from src.common.exception import AppError
 from src.common.database import DB
@@ -97,7 +98,11 @@ class TradeLog:
                           severity='ERROR')
 
         try:
-            message = TradeLog._parse_msg(portfolio.commit(raw_trade), raw_trade.trade['Quantity'])
+            # Actually commit the trade
+            result = portfolio.commit(raw_trade)
+            # If it's a new stock add it to the prices table
+            if result['stocks']: Price.new(raw_trade)
+            message = TradeLog._parse_msg(result, raw_trade.trade['Quantity'])
         except AppError as e:
             return Result(success=False, message="log.commit_raw_trade: "+str(e), severity='ERROR')
 
@@ -115,7 +120,7 @@ class TradeLog:
         return result
 
     @staticmethod
-    def get_open_positions(port: str, stock: str):
+    def get_open_positions(port, stock=None):
         try:
             if stock: positions = Position.read({'port': port, 'stock': stock, 'closed': False}, many=True)
             else: positions = Position.read({'port': port, 'closed': False}, many=True)
@@ -180,7 +185,6 @@ class TradeLog:
 
     @staticmethod
     def restore():
-
         DB.drop()
         with open('data/portfolios.json', 'r') as f:
             portfolios = json.load(f)
@@ -208,6 +212,7 @@ class TradeLog:
 
     @staticmethod
     def bulk(filename: str) -> Result:
+        #TODO Auto create ports that don't exist
         try:
             with open('data/'+filename) as file:
                 headers = file.readline().rstrip('\n').split(',')
@@ -251,6 +256,10 @@ class TradeLog:
 
         return Result(True, message='Phew')
 
+    @staticmethod
+    def update():
+        Price.update_prices()
+        return Price.read({}, True)
 
     # Private function
 
