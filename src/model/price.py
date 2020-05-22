@@ -21,13 +21,18 @@ class Price(Model):
     def __init__(self, stock):
         self._id = stock['_id']
         self.price = stock['price']
+        self.yahoo = stock['yahoo']
+        self.name = stock['name']
 
     @classmethod
     def new(cls, trade):
         if cls.get(trade.stock): return
         cls({
             '_id': trade.stock,
-            'price': trade.trade['price'] if trade.trade['asset'] == 'STK' else 0.0
+            'price': trade.trade['price'] if trade.trade['asset'] == 'STK' else 0.0,
+            'yahoo': trade.stock,
+            'name': "Update price for name",
+
         }).create()
 
     @classmethod
@@ -52,8 +57,11 @@ class Price(Model):
             fifty += symbols[i]
         cls._API(fifty)
 
+    @classmethod
+    def delete_price(cls, stock):
+        cls.read({'_id': stock}).delete()
+
 #TODO Update symbol for tickers that can't be found on Yahoo
-#TODO Delete old symbols
 
     @classmethod
     def _API(cls, symbols):
@@ -69,5 +77,7 @@ class Price(Model):
             else:
                 price.price = 0
                 print(f'No price for {result["symbol"]}')
+            if 'shortName' in result.keys(): price.name = result['shortName']
+            else: price.name = 'Not found'
             price.update()
             print(result['symbol'],': ', price.price)

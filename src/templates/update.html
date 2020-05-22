@@ -5,17 +5,36 @@
     <table class="w3-table w3-hoverable">
         <thead>
             <tr>
-                <th class="w3-center">STOCK</th>
+                <th></th>
+                <th class="w3-left-align">STOCK</th>
+                <th class="w3-left-align">NAME</th>
                 <th class="w3-center">PRICE</th>
+                <th></th>
             </tr>
         </thead>
         {% for price in prices %}
             <tr>
+                <td><button class="w3-button" onclick="document.getElementById('id01').style.display='block'"><i class="fa fa-edit"></i></button></td>
                 <td class="w3-left-align">{{ price._id }}</td>
+                <td class="w3-left-align">{{ price.name }}</td>
                 <td class="w3-center">{{ price.price|ffloat }}</td>
+                <td><a class="w3-button" href='/price/delete/{{ price._id }}'><i class="fa fa-trash"></i></a></td>
             </tr>
         {% endfor %}
     </table>
     {% endif %}
 </div>
+
+<!-- The Modal -->
+<div id="id01" class="w3-modal">
+    <div class="w3-modal-content">
+      <div class="w3-container">
+        <span onclick="document.getElementById('id01').style.display='none'"
+        class="w3-button w3-display-topright">&times;</span>
+        <p>Some text in the Modal..</p>
+        <p>Some text in the Modal..</p>
+      </div>
+    </div>
+  </div>
+  
 {% endblock %}

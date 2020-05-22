@@ -32,7 +32,7 @@ class TradeLog:
             return Result(success=True, message=portfolios)
 
     @staticmethod
-    def create_portfolio(port: str) -> Result:
+    def create_portfolio(port: Portfolio) -> Result:
         """ createa a new portfolio if the name doesn't already exist """
         try:
             message = Portfolio.new(port)
@@ -212,7 +212,6 @@ class TradeLog:
 
     @staticmethod
     def bulk(filename: str) -> Result:
-        #TODO Auto create ports that don't exist
         try:
             with open('data/'+filename) as file:
                 headers = file.readline().rstrip('\n').split(',')
@@ -222,7 +221,9 @@ class TradeLog:
 
         raw.sort(key = lambda x: x['TradeDate'])
 
+        ports = [port.name for port in TradeLog.get_ports().message]
         for r in raw:
+            if not r['Portfolio'] in ports: TradeLog.create_portfolio({'name': r['Portfolio'], 'description': 'Created by bulk upload'})
             r['msg'] = TradeLog.commit_raw_trade(Raw.new(r)._id, r['Portfolio']).message
 
         return Result(success=True, message=raw, severity='SUCCESS')
@@ -257,9 +258,20 @@ class TradeLog:
         return Result(True, message='Phew')
 
     @staticmethod
+    def prices():
+        return Price.read({}, True)
+
+    @staticmethod
     def update():
         Price.update_prices()
-        return Price.read({}, True)
+
+    @staticmethod
+    def delete_price(stock):
+        try:
+            Price.get(stock).delete()
+        except Exception as e:
+            return Result(success=False, message=f"Failed to delete {stock}: {str(e)}", severity='WARNING')
+        return Result(success=True, message=f"Successfully delete {stock}")
 
     # Private function
 

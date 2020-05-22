@@ -38,7 +38,11 @@ class Model:
                             {"_id": self._id}, {"$set": values})
         
     def delete(self):
-        return DB.delete(self.collection, {"_id": ObjectId(self._id)})
+        # return DB.delete(self.collection, {"_id": ObjectId(self._id)})
+        try:
+            self._id = Object(self._id)
+        except: pass
+        return DB.delete(self.collection, {"_id": self._id})
 
     def __repr__(self) -> str:
         return str(vars(self))
