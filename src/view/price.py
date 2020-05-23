@@ -8,11 +8,18 @@ price = Blueprint('price', __name__)
 @price.route('/')
 @login_required
 def prices_root():
-    return render_template('port_prices.html', ports=prices(Log.get_ports().message))
+    return render_template('port_prices.html', ports=_prices(Log.get_ports().message))
 
 @price.route('/stocks')
 @login_required
 def stocks():
+    return render_template('update.html', prices=Log.prices())
+
+@price.route('/stocks/<stock>/<symbol>')
+@login_required
+def yahoo(stock, symbol):
+    print(stock, symbol)
+    Price.get(stock).update({'yahoo': symbol})
     return render_template('update.html', prices=Log.prices())
 
 @price.route('/update')
@@ -59,7 +66,7 @@ def _price(positions):
 
     return message
 
-def prices(ports):
+def _prices(ports):
     message = []
     for port in ports:
         positions = [position for position in Log.get_open_positions(port.name).message]

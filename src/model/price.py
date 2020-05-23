@@ -39,13 +39,11 @@ class Price(Model):
     def update_prices(cls):
         symbols = []
         for stock in cls.read({}, True):
-            symbols.append(stock._id + ',')
-            #  cls.params['symbols'] += stock._id + ','
+            symbols.append(stock.yahoo + ',')
 
         factor = 50
         count = len(symbols)
         iters = count // factor
-        print(f'Count: {count}\tIters: {iters}')
         for i in range(0, iters):
             fifty = ''
             for j in range(factor*i, factor*i+(factor)):
@@ -60,8 +58,6 @@ class Price(Model):
     @classmethod
     def delete_price(cls, stock):
         cls.read({'_id': stock}).delete()
-
-#TODO Update symbol for tickers that can't be found on Yahoo
 
     @classmethod
     def _API(cls, symbols):
