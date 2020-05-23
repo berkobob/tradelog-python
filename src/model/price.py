@@ -67,7 +67,7 @@ class Price(Model):
         results = data['quoteResponse']['result']
 
         for result in results:
-            price = cls.get(result['symbol'])
+            price = cls.read({'yahoo': result['symbol']})
             if 'regularMarketPrice' in result.keys():
                 price.price = result['regularMarketPrice']
             else:

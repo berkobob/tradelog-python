@@ -3,21 +3,19 @@
 <div class='w3-container'>
     {% if ports[0] %}
     <table class="w3-table w3-hoverable">
-        <thead>
-            <tr>
-                <th class="w3-center">PORTFOLIO</th>
-                <th class="w3-center">VALUE</th>
-            </tr>
-        </thead>
+        <tr>
+            <th class="w3-left-align">PORTFOLIO</th>
+            <th class="w3-right-align">VALUE</th>
+        </tr>
         {% for port in ports %}
             <tr onClick="window.location='/price/port/{{ port.port }}';">
                 <td class="w3-left-align">{{ port.port }}</td>
-                <td class="w3-center">{{ port.value|ffloat }}</td>
+                <td class="w3-right-align">{{ port.value|ffloat }}</td>
             </tr>
         {% endfor %}
         <tr>
-            <td><a href="/price/stocks" class="w3-button">STOCKS</a></td>
-            <td class="w3-center"><b>{{ ports|sum(attribute='value')|ffloat }}</b></td>
+            <td class="w3-left-align"><a href="/price/stocks">STOCKS</a></td>
+            <td class="w3-right-align"><b>{{ ports|sum(attribute='value')|ffloat }}</b></td>
         </tr>
     </table>
     {% endif %}
