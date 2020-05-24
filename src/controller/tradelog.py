@@ -97,6 +97,9 @@ class TradeLog:
                           message=f"log.commit_raw_trade: Portfolio {port} not found",
                           severity='ERROR')
 
+        if 'currency' not in raw_trade.trade.keys():
+            raw_trade.trade['currency'] = '$'
+
         try:
             # Actually commit the trade
             result = portfolio.commit(raw_trade)
@@ -249,7 +252,8 @@ class TradeLog:
                         if trade['Name'] == 'Buy': trade['Open/CloseIndicator'] = 'O'
                         if trade['Name'] == 'Sell': trade['Open/CloseIndicator'] = 'C'
                         trade['Multiplier'] = '1'
-                        trade['Notes/Codes'] = "ex"
+                        trade['Notes/Codes'] = trade['Name']
+                        trade['currency'] = '£'
                         raw = Raw.new(trade)._id
                         if port: TradeLog.commit_raw_trade(raw, port)
         except Exception as e:

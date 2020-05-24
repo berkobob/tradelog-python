@@ -51,7 +51,7 @@ def _format_date(date):
 def _format_float(num):
     if num: 
         if isinstance(num, str): num = float(num)
-        return '${:,.2f}'.format(num)
+        return '{:,.2f}'.format(num)
     return ""
 
 @app.template_filter('fpercent')

@@ -14,8 +14,8 @@
         {% for stock in prices %}
         <tr>
             <td class="w3-left-align">{{stock['stock']}}</td>
-            <td class="w3-right-align">{{stock['cost']|ffloat}}</td>
-            <td class="w3-right-align">{{stock['price']|ffloat}}</td>
+            <td class="w3-right-align">{{ stock['currency'] }}{{stock['cost']|ffloat}}</td>
+            <td class="w3-right-align">{{ stock['currency'] }}{{stock['price']|ffloat}}</td>
             <td class="w3-right-align">{{stock['percent']|fpercent}}</td>
             <td class="w3-right-align">{{stock['value']|ffloat}}</td>
         </tr>

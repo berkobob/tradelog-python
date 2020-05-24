@@ -17,7 +17,7 @@
                 <td class="w3-left-align">{{ price._id }}</td>
                 <td class="w3-left-align">{{ price.name }}</td>
                 <td class="w3-left-align" onclick="modal('{{ price._id }}', '{{ price.yahoo }}')" id='{{ price._id }}'>{{ price.yahoo }}</td>
-                <td class="w3-center">{{ price.price|ffloat }}</td>
+                <td class="w3-center">{{ price.currency }}{{ price.price|ffloat }}</td>
                 <td><a class="w3-button" href='/price/delete/{{ price._id }}'><i class="fa fa-trash"></i></a></td>
             </tr>
         {% endfor %}

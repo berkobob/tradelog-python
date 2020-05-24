@@ -23,15 +23,24 @@ class Price(Model):
         self.price = stock['price']
         self.yahoo = stock['yahoo']
         self.name = stock['name']
+        self.currency = stock['currency']
 
     @classmethod
     def new(cls, trade):
         if cls.get(trade.stock): return
+
+        symbol = trade.stock
+        if trade.trade['currency'] == '£':
+            symbol = trade.stock[0:-1].replace('.', '-') + trade.stock[-1]
+            if symbol[-1] != '.': symbol += '.' 
+            symbol += 'L'
+
         cls({
             '_id': trade.stock,
             'price': trade.trade['price'] if trade.trade['asset'] == 'STK' else 0.0,
-            'yahoo': trade.stock,
+            'yahoo': symbol,
             'name': "Update price for name",
+            'currency': trade.trade['currency'],
 
         }).create()
 
@@ -70,6 +79,7 @@ class Price(Model):
             price = cls.read({'yahoo': result['symbol']})
             if 'regularMarketPrice' in result.keys():
                 price.price = result['regularMarketPrice']
+                if price.currency == '£': price.price /= 100
             else:
                 price.price = 0
                 print(f'No price for {result["symbol"]}')
