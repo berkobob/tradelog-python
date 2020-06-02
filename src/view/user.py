@@ -1,18 +1,30 @@
-from flask import Blueprint, current_app, render_template, flash
+from flask import Blueprint, current_app, render_template, flash, url_for
 from flask import redirect, request
 from flask_login import login_user, logout_user
-from src.model.user import User
+from src.view.web import web
 from oauthlib.oauth2 import WebApplicationClient
 import requests, json
+from passlib.hash import sha256_crypt as crypt 
 
 user = Blueprint('user', __name__)
 client = None
 
-@user.route('/')
+@user.route('/login', methods=['GET', 'POST'])
 def hold():
+    if request.method == 'GET': return render_template('login.html')
+
+    email = request.form['email']
+    password = request.form['password']
+    user = User.get(email)
+    if user and crypt.verify(password, user.password):
+        login_user(user)
+        flash (f'Login successful. Welcome back {user.name}', 'SUCCESS')
+        return redirect(url_for(web.home))
+
+    flash('Invalid credentials! You are not logged in.', 'WARNING')
     return render_template('login.html')
 
-@user.route('/login')
+@user.route('/google_login')
 def login():
     global client
     DISCO_URL = current_app.config['GOOGLE_DISCOVERY_URL']
@@ -78,16 +90,18 @@ def logout():
     logout_user()
     return render_template("login.html")
 
-@user.route('/me')
-def temp():
-    email = request.args.get('email')
-    name = request.args.get('name')
-    user = User.me(email, name)
-    if user:
-        login_user(user)
-        flash (f'Login successful. Welcome back {user.name}', 'SUCCESS')
-        return redirect('/')
+   
 
-    flash('Invalid credentials! You are not logged in.', 'WARNING')
-    return render_template('login.html')
+"""
+from passlib.hash import sha256_crypt
 
+password = sha256_crypt.encrypt("password")
+password2 = sha256_crypt.encrypt("password")
+
+print(password)
+print(password2)
+
+print(sha256_crypt.verify("password", password))
+		
+https://pythonprogramming.net/password-hashing-flask-tutorial/
+"""

@@ -69,6 +69,31 @@ class Price(Model):
         cls.read({'_id': stock}).delete()
 
     @classmethod
+    def get_price(cls, positions):
+        prices = cls.read({}, True)
+        message = []
+
+        for position in positions:
+            if 'shares' in position.position:
+                _prices = [price for price in prices if price._id == position.stock]
+                if len(_prices) == 0: 
+                    price = 0
+                    currency = ''
+                else: 
+                    price = _prices[0].price
+                    currency = _prices[0].currency
+                percent = (price-position.risk_per) / position.risk_per if position.risk_per != 0 else 0
+                message.append({
+                    'stock': position.stock,
+                    'cost': position.risk_per,
+                    'price': price,
+                    'percent': percent,
+                    'value': price * position.quantity,
+                    'currency': currency,
+                })
+        return message
+
+    @classmethod
     def _API(cls, symbols):
         cls.params['symbols'] = symbols
         response = requests.request('GET', cls.url, headers=cls.headers, params=cls.params)

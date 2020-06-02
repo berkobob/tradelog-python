@@ -1,6 +1,7 @@
 import operator
 from flask import Blueprint, jsonify, abort
 from src.controller.tradelog import TradeLog as Log
+from src.model.price import Price
 
 api = Blueprint('api', __name__)
 
@@ -38,3 +39,10 @@ def trades(id):
         abort(500, result.message)
 
     return jsonify([trade.to_json() for trade in result.message])
+
+@api.route('/price')
+def price():
+    result = Log.price()
+    if not result.success: abort(500, result.message)
+    return jsonify(result.message)
+

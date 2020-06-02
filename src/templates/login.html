@@ -11,12 +11,30 @@
 <div class="w3-container">
     <div class="w3-container w3-top w3-bar w3-black">
         <a href="/" class="w3-bar-item w3-button">Trade Log</a>
-        <a href="/user/login" class="w3-bar-item w3-button w3-right">Login</a>
+        <a href="/login" class="w3-bar-item w3-button w3-right">Login</a>
     </div>
     <p>&nbsp</p>
-    {% block content %}
+    <div class="w3-card-4 w3-container">
+        <div class="w3-container"><h2>Login:</h2></div>
+        <form class="w3-container" action = "/login" method = "POST" enctype = "multipart/form-data">
+            <div class="w3-row-padding">
+                <div class="w3-col s4">
+                    <input type="text" class="w3-input w3-border" id="email" placeholder="email" name="email">
+                </div>
+                <div class="w3-col s4">
+                    <input type="password" class="w3-input w3-border" placeholder="password" name="password">
+                </div>
+                <div class="w3-col s4">
+                    <input type="submit" class="w3-button w3-black" placeholder="Submit">
+                </div>
+            </div>
+        </form>
+        <p>&nbsp;</p>
+    </div>
     
-    {% endblock %}
+    <script>
+        document.getElementById("email").focus()
+    </script>
     
     <div class="w3-container ">
         {% with messages = get_flashed_messages(with_categories=true) %}

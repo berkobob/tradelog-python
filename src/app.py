@@ -13,7 +13,7 @@ import sys
 app = Flask(__name__)
 app.register_blueprint(web)
 app.register_blueprint(api, url_prefix='/api')
-app.register_blueprint(user, url_prefix='/user')
+# app.register_blueprint(user, url_prefix='/user')
 app.register_blueprint(price, url_prefix='/price')
 
 login_manager = LoginManager()

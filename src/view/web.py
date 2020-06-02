@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, flash, redirect, redirect
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, login_user, logout_user
+from passlib.hash import sha256_crypt as crypt 
 from src.controller.tradelog import TradeLog as Log 
+from src.model.user import User
 import pygal, operator
 
 web = Blueprint('web', __name__)
@@ -17,7 +19,7 @@ def home():
         sortby = request.args.get('sortby')
         return render_template('home.html', ports=_sort(_ports(), sortby), chart=None)
     else:
-        return redirect('/user')
+        return redirect('/login')
 
 @web.route('/new', methods=['GET', 'POST'])
 @login_required
@@ -261,6 +263,27 @@ def sharepad():
         flash(f'Failed to load {f.filename}. {result.message}', result.severity)
 
     return render_template('sharepad.html', ports=[port.name.replace(' ', '_') for port in _ports()])
+
+@web.route('/login', methods=['GET', 'POST'])
+def hold():
+    if request.method == 'GET': return render_template('login.html')
+
+    email = request.form['email']
+    password = request.form['password']
+    user = User.read({'email': email})
+    if user and crypt.verify(password, user.password):
+        login_user(user)
+        flash (f'Login successful. Welcome back {user.name}', 'SUCCESS')
+        print(current_user.is_authenticated)
+        return redirect('/')
+
+    flash('Invalid credentials! You are not logged in.', 'WARNING')
+    return render_template('login.html')
+
+@web.route('/logout')
+def logout():
+    logout_user()
+    return render_template("login.html")
 
 
 # private functions

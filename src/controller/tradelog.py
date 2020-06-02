@@ -262,6 +262,20 @@ class TradeLog:
         return Result(True, message='Phew')
 
     @staticmethod
+    def price():
+        message = []
+        try:
+            for port in TradeLog.get_ports().message:
+                positions = [position for position in TradeLog.get_open_positions(port.name).message]
+                message.append({
+                    'port': port.name,
+                    'value': sum(price['value'] for price in Price.get_price(positions))
+                })
+        except Exception as e:
+            return Result(False, message=str(e), severity='ERROR')
+        return Result(True, message)
+
+    @staticmethod
     def prices():
         return Price.read({}, True)
 
